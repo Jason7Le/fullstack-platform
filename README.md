@@ -1,14 +1,25 @@
-## 全栈微前端数据平台
+# 🚀 全栈微前端数据平台
 
-一个采用 Monorepo 管理的全栈微前端数据平台示例工程，包含前端应用与后端服务，以及基础设施编排示例。
+[![Gitee star](https://gitee.com/你的用户名/fullstack-platform/badge/star.svg)](https://gitee.com/你的用户名/fullstack-platform/stargazers)
 
-### 技术栈
-- 前端：Vue 3、Vite、TypeScript（示例应用：`apps/main-app`）
-- 后端：NestJS、TypeORM、MySQL（示例服务：`services/user-service`）
-- Monorepo：npm workspaces
-- 基础设施：Docker（`infra/`）
+## 📖 项目简介
 
-### 目录结构
+基于 Vue3 + NestJS 的微前端全栈项目，包含用户管理、数据可视化等功能。
+
+## 🛠️ 技术栈
+
+### 前端技术
+- **Vue 3** + TypeScript + Vite
+- **微前端架构** + 模块联邦
+- Element Plus + Tailwind CSS
+
+### 后端技术  
+- **NestJS** + TypeORM
+- MySQL + Redis + JWT
+- Docker + Docker Compose
+
+## 🏗️ 项目结构
+
 ```
 fullstack-platform/
   apps/                 # 前端应用（微前端子应用）
@@ -28,10 +39,6 @@ fullstack-platform/
   docs/                # 文档
 ```
 
-### 环境要求
-- Node.js ≥ 18
-- npm ≥ 8（已使用 npm workspaces）
-- 可选：Docker Desktop（运行 `infra/` 依赖）
 
 ### 安装依赖
 在仓库根目录执行：
@@ -95,3 +102,24 @@ docker-compose -f infra/docker-compose.yml up -d
 本项目用于技术方案示例，许可证请参考各子包声明或在根目录补充具体 LICENSE。
 
 
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js 18+
+- pnpm 8+
+- Docker 20+
+
+### 安装运行
+```bash
+# 克隆项目
+git clone hhttps://gitee.com/sun-lixuejian/fullstack-platform.git
+
+# 安装依赖
+pnpm install
+
+# 启动基础设施
+pnpm run docker:up
+
+# 启动开发服务
+pnpm run dev
