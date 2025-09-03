@@ -1,9 +1,33 @@
 {
   "name": "fullstack-platform",
+  "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "services/*",
-    "packages/*"
-  ]
+  "description": "全栈微前端数据平台 - Monorepo",
+  "scripts": {
+    "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
+    "dev:frontend": "cd apps/main-app && pnpm run dev",
+    "dev:backend": "cd services/user-service && pnpm run start:dev",
+    "build": "pnpm run build:frontend && pnpm run build:backend",
+    "build:frontend": "cd apps/main-app && pnpm run build",
+    "build:backend": "cd services/user-service && pnpm run build",
+    "test": "pnpm run test:frontend && pnpm run test:backend",
+    "test:frontend": "cd apps/main-app && pnpm run test",
+    "test:backend": "cd services/user-service && pnpm run test",
+    "docker:up": "cd infra/docker && docker-compose up -d",
+    "docker:down": "cd infra/docker && docker-compose down",
+    "lint": "pnpm run lint:frontend && pnpm run lint:backend",
+    "lint:frontend": "eslint apps/**/src --ext .ts,.vue",
+    "lint:backend": "eslint services/**/src --ext .ts",
+    "clean": "rimraf apps/*/dist services/*/dist packages/*/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
 }
