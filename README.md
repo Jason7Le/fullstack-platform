@@ -123,3 +123,15 @@ pnpm run docker:up
 
 # 启动开发服务
 pnpm run dev
+
+## 🔧 环境配置
+
+### 首次设置
+```bash
+# 运行环境初始化脚本
+./scripts/setup-env.sh
+
+# 或者手动复制
+cp .env.example .env
+cp services/user-service/.env.example services/user-service/.env
+cp apps/main-app/.env.example apps/main-app/.env
