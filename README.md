@@ -97,6 +97,7 @@ docker-compose -f infra/docker-compose.yml up -d
 ### 提交规范与代码质量
 - 统一使用 TypeScript
 - 建议在各子包内使用对应的 `lint` / `test` 脚本（如 `services/user-service` 已内置 `eslint`、`jest` 脚本）
+- **Git 提交规范**：本项目采用 [Conventional Commits](https://www.conventionalcommits.org/) 规范，详细说明请参考 [`docs/git-commit-conventions.md`](./docs/git-commit-conventions.md)
 
 ### 许可证
 本项目用于技术方案示例，许可证请参考各子包声明或在根目录补充具体 LICENSE。
