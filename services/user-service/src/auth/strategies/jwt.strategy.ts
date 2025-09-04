@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     // payload 参数：JWT 解码后的数据，通常包含用户 ID (sub)、过期时间等
     const user = await this.usersService.findOne(payload.sub);
-    
+
     // 验证用户是否存在：如果用户不存在，抛出未授权异常
     if (!user) {
       throw new UnauthorizedException('用户不存在');
@@ -54,4 +54,3 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     };
   }
 }
-
