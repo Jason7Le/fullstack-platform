@@ -1,4 +1,4 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
@@ -6,8 +6,8 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { RolesGuard } from './common/guards/roles.guard';
+// import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+// import { RolesGuard } from './common/guards/roles.guard';
 
 // 应用入口函数：启动 Nest 应用与全局配置
 async function bootstrap() {
@@ -20,16 +20,28 @@ async function bootstrap() {
 
   // Swagger 文档初始化
   const SwaggerConfig = new DocumentBuilder()
-    .setTitle('User Service API') // 文档标题
-    .setDescription('用户服务API文档') // 文档描述
+    .setTitle('用户服务 API') // 文档标题
+    .setDescription('用户管理服务API文档，包含用户CRUD操作和认证功能') // 文档描述
     .setVersion('1.0') // 文档版本
-    .addTag('users') // 标签分类
+    .addTag('用户管理', '用户CRUD操作相关接口')
+    .addTag('认证管理', '用户登录注册相关接口')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: '输入JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // 这个名称要与@ApiBearerAuth()中的名称一致
+    )
     .build();
   const SwaggerDocument = SwaggerModule.createDocument(app, SwaggerConfig);
-  SwaggerModule.setup('apiSwaggerDoc', app, SwaggerDocument); // 文档访问路径 /apiSwaggerDoc
+  SwaggerModule.setup('api/docs/apiSwaggerDoc', app, SwaggerDocument); // 文档访问路径 /apiSwaggerDoc
 
-  // 获取 Reflector 用于角色守卫读取元数据
-  const reflector = app.get(Reflector);
+  // 获取 Reflector 用于角色守卫读取元数据（暂时注释，因为未使用全局守卫）
+  // const reflector = app.get(Reflector);
 
   // 全局验证管道：入参校验与自动类型转换
   app.useGlobalPipes(
@@ -41,7 +53,8 @@ async function bootstrap() {
   );
 
   // 全局守卫（也可在控制器级使用）：JWT 鉴权 + 角色权限
-  app.useGlobalGuards(new JwtAuthGuard(), new RolesGuard(reflector));
+  // 注意：这里不设置全局JWT守卫，而是在需要保护的控制器上单独设置
+  // app.useGlobalGuards(new JwtAuthGuard(), new RolesGuard(reflector));
 
   // 全局拦截器：统一响应结构
   app.useGlobalInterceptors(new TransformInterceptor());
@@ -49,9 +62,20 @@ async function bootstrap() {
   // 全局异常过滤器：兜底异常与 HTTP 异常处理
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 
+  console.log('=== 服务启动信息 ===');
+  console.log('环境变量验证:');
+  console.log('----DB_HOST:', process.env.DB_HOST);
+  console.log('----DB_PORT:', process.env.DB_PORT);
+  console.log('----DB_USERNAME:', process.env.DB_USERNAME);
+  console.log('----DB_DATABASE:', process.env.DB_DATABASE);
+  console.log('----NODE_ENV:', process.env.NODE_ENV);
+  console.log('=== 服务启动完成 ===');
   // 启动监听
   await app.listen(port);
 }
 
 // 启动应用
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('应用启动失败:', error);
+  process.exit(1);
+});
