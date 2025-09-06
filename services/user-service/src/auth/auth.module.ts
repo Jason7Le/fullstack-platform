@@ -6,7 +6,6 @@ import { PassportModule } from '@nestjs/passport'; // Passport 集成模块：�
 import { JwtModule } from '@nestjs/jwt'; // JWT 模块：提供签发与验证 JWT 的能力
 import { ConfigModule, ConfigService } from '@nestjs/config'; // 配置模块/服务：读取环境变量
 import { LocalStrategy } from './strategies/local.strategy'; // 本地策略：基于邮箱+密码校验
-// import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard'; // JWT 守卫：保护需要鉴权的接口
 import { JwtStrategy } from './strategies/jwt.strategy';
 // 使用 @Module 装饰器声明模块的组成
 @Module({

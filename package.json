@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "全栈微前端数据平台 - Monorepo",
+  "workspaces": [
+    "app/*",
+    "services/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
     "dev:frontend": "cd apps/main-app && pnpm run dev",
@@ -13,16 +18,18 @@
     "test": "pnpm run test:frontend && pnpm run test:backend",
     "test:frontend": "cd apps/main-app && pnpm run test",
     "test:backend": "cd services/user-service && pnpm run test",
+    "format": "prettier . --check",
+    "format:check": "npx prettier --check .",
     "docker:up": "cd infra && docker-compose up -d",
     "docker:down": "cd infra && docker-compose down",
     "lint": "pnpm run lint:frontend && pnpm run lint:backend",
-    "lint:frontend": "eslint apps/**/src --ext .ts,.vue",
-    "lint:backend": "eslint services/**/src --ext .ts",
+    "lint:frontend": "eslint \"apps/**/*.{ts,vue}\"",
+    "lint:backend": "eslint \"services/**/*.ts\"",
     "lint:fix": "eslint . --fix",
-    "format": "prettier . --check",
     "format:fix": "prettier . --write",
     "clean": "rimraf apps/*/dist services/*/dist packages/*/dist",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:packges": "pnpm run -r --fliter=./packages/* build"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.42.0",
@@ -31,11 +38,13 @@
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
+    "eslint-plugin-vue": "^10.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.4.2",
     "rimraf": "^5.0.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vue-eslint-parser": "^10.2.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -43,9 +52,12 @@
   },
   "packageManager": "pnpm@8.15.0",
   "lint-staged": {
-    "*.{ts,tsx,js,vue,json,md,yml,yaml}": [
+    "*.{ts,tsx,js,vue}": [
       "prettier --write",
       "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
     ]
   }
 }

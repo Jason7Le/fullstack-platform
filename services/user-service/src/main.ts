@@ -1,11 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 // import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 // import { RolesGuard } from './common/guards/roles.guard';
 
@@ -60,7 +59,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // 全局异常过滤器：兜底异常与 HTTP 异常处理
-  app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   console.log('=== 服务启动信息 ===');
   console.log('环境变量验证:');

@@ -16,24 +16,24 @@ git commit -m "fix(auth): 修复 JWT token 过期处理"
 
 ### 主要类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `feat` | 新功能 | `feat: 添加用户注册功能` |
-| `fix` | 修复 bug | `fix: 修复登录验证问题` |
-| `docs` | 文档更新 | `docs: 更新 README 安装说明` |
-| `style` | 代码格式调整 | `style: 统一代码缩进格式` |
-| `refactor` | 代码重构 | `refactor: 重构用户服务模块` |
-| `perf` | 性能优化 | `perf: 优化数据库查询性能` |
-| `test` | 测试相关 | `test: 添加用户登录单元测试` |
-| `chore` | 构建/工具/配置 | `chore: 更新依赖包版本` |
+| 类型       | 说明           | 示例                         |
+| ---------- | -------------- | ---------------------------- |
+| `feat`     | 新功能         | `feat: 添加用户注册功能`     |
+| `fix`      | 修复 bug       | `fix: 修复登录验证问题`      |
+| `docs`     | 文档更新       | `docs: 更新 README 安装说明` |
+| `style`    | 代码格式调整   | `style: 统一代码缩进格式`    |
+| `refactor` | 代码重构       | `refactor: 重构用户服务模块` |
+| `perf`     | 性能优化       | `perf: 优化数据库查询性能`   |
+| `test`     | 测试相关       | `test: 添加用户登录单元测试` |
+| `chore`    | 构建/工具/配置 | `chore: 更新依赖包版本`      |
 
 ### 其他类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `build` | 构建系统 | `build: 更新 webpack 配置` |
-| `ci` | CI/CD 相关 | `ci: 添加 GitHub Actions 工作流` |
-| `revert` | 回滚提交 | `revert: 回滚到上一个稳定版本` |
+| 类型     | 说明       | 示例                             |
+| -------- | ---------- | -------------------------------- |
+| `build`  | 构建系统   | `build: 更新 webpack 配置`       |
+| `ci`     | CI/CD 相关 | `ci: 添加 GitHub Actions 工作流` |
+| `revert` | 回滚提交   | `revert: 回滚到上一个稳定版本`   |
 
 ## 🎯 范围说明
 
@@ -114,36 +114,42 @@ fix(infra): 修复 Redis 连接配置
 ## 🚀 常用提交命令
 
 ### 新功能开发
+
 ```bash
 git commit -m "feat(user-service): 添加用户登录功能"
 git commit -m "feat(auth): 实现 JWT 认证策略"
 ```
 
 ### Bug 修复
+
 ```bash
 git commit -m "fix(user): 修复用户注册验证问题"
 git commit -m "fix(api): 修复分页参数处理"
 ```
 
 ### 代码重构
+
 ```bash
 git commit -m "refactor: 将 user-service 从子模块转换为普通目录"
 git commit -m "refactor(app): 优化模块导入结构"
 ```
 
 ### 文档更新
+
 ```bash
 git commit -m "docs: 更新 README 安装指南"
 git commit -m "docs: 添加 API 接口文档"
 ```
 
 ### 代码格式
+
 ```bash
 git commit -m "style: 统一代码缩进格式"
 git commit -m "style: 移除测试注释"
 ```
 
 ### 配置更新
+
 ```bash
 git commit -m "chore: 更新 pnpm 工作区配置"
 git commit -m "chore: 添加 Docker 构建配置"

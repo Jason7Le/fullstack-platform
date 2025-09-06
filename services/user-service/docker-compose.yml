@@ -4,14 +4,14 @@ version: '3.8'
 # 指定Docker Compose文件格式版本，3.8版本支持现代Docker特性
 
 services:
-# 定义服务列表，每个服务对应一个容器
+  # 定义服务列表，每个服务对应一个容器
 
   # MySQL 数据库服务
   mysql:
     # 服务名称，可以通过这个名称在容器间进行网络通信
     image: mysql:8.0
     # 使用的Docker镜像，指定MySQL 8.0版本
-    
+
     environment:
       # 环境变量配置，用于设置MySQL的初始配置
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -22,20 +22,29 @@ services:
       # 创建名为app_user的用户
       MYSQL_PASSWORD: userpassword
       # 设置app_user用户的密码
-    
+
     ports:
-      - "3307:3306"
+      - '3307:3306'
       # 端口映射，将主机的3306端口映射到容器的3306端口
       # 格式：主机端口:容器端口
-    
+
     volumes:
       - mysql_data:/var/lib/mysql
       # 数据卷挂载，将mysql_data卷挂载到容器的/var/lib/mysql目录
       # 确保数据持久化，容器重启后数据不会丢失
-    
+
     healthcheck:
       # 健康检查配置，用于监控服务是否正常运行
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-uroot',
+          '-prootpassword',
+        ]
       # 健康检查命令，使用mysqladmin ping命令检查MySQL是否响应
       interval: 10s
       # 健康检查间隔时间，每10秒检查一次
@@ -49,16 +58,16 @@ services:
     # Redis缓存服务
     image: redis:7-alpine
     # 使用Redis 7版本的Alpine Linux镜像，体积更小
-    
+
     ports:
-    - "6379:6379"
-      # 端口映射，将主机的6379端口映射到容器的6379端口
-      # Redis默认使用6379端口
-    
+      - '6379:6379'
+        # 端口映射，将主机的6379端口映射到容器的6379端口
+        # Redis默认使用6379端口
+
     volumes:
-    - redis_data:/data
-      # 数据卷挂载，将redis_data卷挂载到容器的/data目录
-      # 确保Redis数据持久化
+      - redis_data:/data
+        # 数据卷挂载，将redis_data卷挂载到容器的/data目录
+        # 确保Redis数据持久化
 
 volumes:
   # 定义数据卷，用于数据持久化

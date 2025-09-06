@@ -65,9 +65,9 @@ export class UserResponseDto {
   /**
    * 构造函数
    * 支持使用部分属性快速创建 UserResponseDto 实例
-   * 
+   *
    * @param partial - 部分用户属性，用于从现有用户对象创建响应 DTO
-   * 
+   *
    * 使用示例：
    * const userResponse = new UserResponseDto({
    *   id: 1,

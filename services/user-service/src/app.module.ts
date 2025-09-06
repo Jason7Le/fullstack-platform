@@ -1,5 +1,6 @@
 // Nest 核心：模块装饰器，用于定义和组织 Nest 模块
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 // TypeORM 集成模块：提供与 TypeORM 的集成（数据库连接、仓库注入等）
 import { TypeOrmModule } from '@nestjs/typeorm';
 // 配置模块与服务：加载环境变量、读取配置（ConfigService 用于获取配置项）
@@ -12,6 +13,7 @@ import { AppService } from './app.service';
 import { User } from 'users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CommonModule } from './common/common.module';
 
 import * as path from 'path';
 
@@ -79,6 +81,7 @@ import * as path from 'path';
       }),
       inject: [ConfigService],
     }),
+    CommonModule, // 全局通用模块
     UsersModule,
     AuthModule,
     // 其他模块可以继续在此添加
