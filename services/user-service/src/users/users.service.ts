@@ -127,7 +127,7 @@ export class UsersService {
         throw error;
       }
       // 其他未知错误转换为系统错误
-      throw new InternalServerErrorException('创建用户失败');
+      throw new UserAlreadyExistsException('创建用户失败');
     }
   }
 

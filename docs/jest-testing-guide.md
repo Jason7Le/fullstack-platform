@@ -477,6 +477,35 @@ expect(result).toEqual(
 
 ---
 
+## 测试框架核心概念
+
+1. **测试结构（Describe + It）**
+
+```typescript
+describe('UsersService', () => {
+  // 测试套件：描述要测试的类
+  describe('findOne', () => {
+    // 测试分组：描述要测试的方法
+    it('应该成功找到用户', async () => {
+      // 测试用例：描述具体场景
+      // 测试逻辑
+    });
+  });
+});
+```
+
+2. **测试生命周期（BeforeEach + AfterEach）**
+
+```typescript
+beforeEach(async () => {
+  // 每个测试前执行：准备测试环境
+});
+
+afterEach(() => {
+  // 每个测试后执行：清理工作
+});
+```
+
 ## 🚀 快速开始
 
 1. **安装依赖**

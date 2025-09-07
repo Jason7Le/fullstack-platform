@@ -1,6 +1,6 @@
 # 🚀 全栈微前端数据平台
 
-[![Gitee star](https://gitee.com/你的用户名/fullstack-platform/badge/star.svg)](https://gitee.com/你的用户名/fullstack-platform/stargazers)
+[![Gitee star](https://gitee.com/sun-lixuejian/fullstack-platform/badge/star.svg)](https://gitee.com/sun-lixuejian/fullstack-platform/stargazers)
 
 ## 📖 项目简介
 

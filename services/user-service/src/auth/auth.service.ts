@@ -1,11 +1,11 @@
+import { PasswordUtil } from '@fullstack-platform/common';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PasswordUtil } from '@fullstack-platform/common';
-import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
+import { JwtPayload, LoginResponseDto } from './dto/login-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { LoginResponseDto, JwtPayload } from './dto/login-response.dto';
 
 // 用户信息类型（去除敏感字段）
 type SafeUser = Pick<
