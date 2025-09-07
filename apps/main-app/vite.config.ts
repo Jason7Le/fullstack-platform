@@ -1,5 +1,5 @@
-import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { defineConfig, loadEnv } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     server: {
-      port: env.VITE_APP_PORT,
+      port: parseInt(env.VITE_APP_PORT) || 3000,
     },
     define: {
       // 将环境变量注入到前端代码中
