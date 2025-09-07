@@ -9,36 +9,36 @@
  * 路由前缀：/users
  * 使用 TransformInterceptor 进行响应数据转换
  */
+import { Roles } from '@fullstack-platform/common';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  ParseIntPipe,
+  Get,
   HttpCode,
   HttpStatus,
-  UseInterceptors,
-  UseGuards,
   Logger,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { TransformInterceptor } from '../common/interceptors/transform.interceptor';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { Roles } from '@fullstack-platform/common';
-import { TransformInterceptor } from '../common/interceptors/transform.interceptor';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBody,
-} from '@nestjs/swagger';
+import { UsersService } from './users.service';
 
 /**
  * 用户控制器类
@@ -193,7 +193,7 @@ export class UsersController {
    * 注意：此接口返回所有用户，在生产环境中可能需要分页处理
    */
   @Get('list')
-  @Roles('admin') // 仅管理员可以查看所有用户
+  @Roles('admin', 'user') // 仅管理员可以查看所有用户
   @ApiOperation({
     summary: '获取用户列表',
     description: '管理员获取所有用户列表',

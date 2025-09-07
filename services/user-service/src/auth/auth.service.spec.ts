@@ -21,7 +21,7 @@ describe('AuthService', () => {
 
   const mockUser = {
     id: 1,
-    email: 'test@example.com',
+    email: 'admin@example.com',
     name: 'Test User',
     role: 'user' as const,
     passwordHash: 'hashed_password',
@@ -29,7 +29,7 @@ describe('AuthService', () => {
     updatedAt: new Date(),
   };
   const mockLoginDto = {
-    email: 'test@example.com',
+    email: 'admin@example.com',
     password: 'password123',
   };
   beforeEach(async () => {
@@ -62,7 +62,7 @@ describe('AuthService', () => {
     it('应该成功验证用户', async () => {
       jest.spyOn(usersService, 'findByEmail').mockResolvedValue({
         id: 1,
-        email: 'test@example.com',
+        email: 'admin@example.com',
         passwordHash: '$2b$10$hashed_password',
         name: 'Test User',
         role: 'user',
@@ -72,7 +72,7 @@ describe('AuthService', () => {
 
       // 需要模拟 bcrypt 的 comparePassword
       const result = await authService.validateUser(
-        'test@example.com',
+        'admin@example.com',
         'password123',
       );
 
@@ -99,7 +99,7 @@ describe('AuthService', () => {
 
       // 执行
       const result = await authService.validateUser(
-        'test@example.com',
+        'admin@example.com',
         'wrongpassword',
       );
 
@@ -118,10 +118,10 @@ describe('AuthService', () => {
       // 断言
       expect(result).toBeDefined();
       expect(result.access_token).toBe('mock_jwt_token');
-      expect(result.user.email).toBe('test@example.com');
+      expect(result.user.email).toBe('admin@example.com');
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: 1,
-        email: 'test@example.com',
+        email: 'admin@example.com',
         role: 'user',
       });
     });
