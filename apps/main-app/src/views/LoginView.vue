@@ -45,7 +45,7 @@
         <!-- 记住我和忘记密码 -->
         <el-form-item class="login-options">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
-          <el-link type="primary" :underline="false" class="forgot-password"> 忘记密码？ </el-link>
+          <!-- <el-link type="primary" :underline="false" class="forgot-password"> 忘记密码？ </el-link> -->
         </el-form-item>
 
         <!-- 登录按钮 -->
@@ -136,6 +136,7 @@ const handleLogin = async () => {
     const response = await loginApi({
       email: loginForm.email,
       password: loginForm.password,
+      rememberMe: loginForm.rememberMe,
     });
 
     // 登录成功

@@ -6,7 +6,7 @@ import httpClient from '@/utils/httpClient';
  */
 
 // 登录接口
-export const loginApi = (data: { email: string; password: string }) => {
+export const loginApi = (data: { email: string; password: string; rememberMe: boolean }) => {
   return httpClient.post('/auth/login', data);
 };
 

@@ -1,23 +1,11 @@
 <template>
-  <div class="user-management-container">
-    <!-- 页面头部 -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="title-section">
-          <h1 class="page-title">
-            <el-icon class="title-icon"><User /></el-icon>
-            用户管理
-          </h1>
-          <p class="page-subtitle">管理系统用户和权限</p>
-        </div>
-        <div class="action-section">
-          <el-button v-if="authStore.isAdmin" type="primary" @click="handleCreateUser">
-            <el-icon><Plus /></el-icon>
-            新增用户
-          </el-button>
-        </div>
-      </div>
-    </div>
+  <PageContainer title="用户管理" subtitle="管理系统用户和权限" icon="User" back-path="/dashboard">
+    <template #actions>
+      <el-button v-if="authStore.isAdmin" type="primary" @click="handleCreateUser">
+        <el-icon><Plus /></el-icon>
+        新增用户
+      </el-button>
+    </template>
 
     <!-- 用户列表 -->
     <div class="user-list-section">
@@ -183,14 +171,15 @@
         </div>
       </template>
     </el-dialog>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { Delete, Edit, List, Plus, Refresh, User } from '@element-plus/icons-vue';
+import { Delete, Edit, List, Plus, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { createUserApi, deleteUserApi, getUserListApi, updateUserApi } from '../api/userApi';
+import PageContainer from '../components/PageContainer.vue';
 import { useAuthStore } from '../stores/auth';
 
 // Auth store
@@ -335,6 +324,7 @@ const handleDeleteUser = async (user: any) => {
       confirmButtonText: '确定删除',
       cancelButtonText: '取消',
       type: 'warning',
+      draggable: true,
     });
 
     await deleteUserApi(user.id);
@@ -450,56 +440,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.user-management-container {
-  padding: 20px;
-  background-color: #f5f7fa;
-  min-height: 100vh;
-}
-
-.page-header {
-  margin-bottom: 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.title-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.page-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.title-icon {
-  font-size: 28px;
-  color: #409eff;
-}
-
-.page-subtitle {
-  margin: 0;
-  color: #7f8c8d;
-  font-size: 14px;
-}
-
 .user-list-section {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
+  padding: 20px;
 }
 
 .card-header {

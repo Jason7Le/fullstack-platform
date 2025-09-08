@@ -364,4 +364,42 @@ export class UsersService {
       throw new InternalServerErrorException('获取用户统计失败');
     }
   }
+
+  /**
+   * 更新刷新令牌
+   * 保存新的令牌和过期时间
+   * @param id - 用户ID
+   * @param refreshToken - 刷新令牌
+   * @param refreshTokenExpiry - 刷新令牌过期时间
+   */
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    refreshTokenExpiry: Date,
+  ): Promise<void> {
+    try {
+      await this.usersRepository.update(userId, {
+        refreshToken,
+        refreshTokenExpiry,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('更新刷新令牌失败');
+    }
+  }
+
+  /**
+   * 根据刷新令牌查找用户
+   * 用于验证刷新令牌的有效性
+   * @param refreshToken - 刷新令牌
+   * @returns Promise<User | null> - 返回用户实体或 null
+   */
+  async findByRefreshToken(refreshToken: string): Promise<User | null> {
+    try {
+      return await this.usersRepository.findOne({
+        where: { refreshToken }, // 根据刷新令牌查询
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('查询用户失败');
+    }
+  }
 }

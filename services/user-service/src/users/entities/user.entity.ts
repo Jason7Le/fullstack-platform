@@ -1,3 +1,5 @@
+import { Exclude } from 'class-transformer';
+import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -5,8 +7,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
-import { IsEmail, IsString, MinLength, IsEnum } from 'class-validator';
 
 // 用户实体，对应数据库表 `users`
 @Entity('users')
@@ -55,6 +55,16 @@ export class User {
   isAdmin(): boolean {
     return this.role === 'admin';
   }
+
+  // 刷新token
+  @Column({ nullable: true })
+  @Exclude()
+  refreshToken: string;
+
+  // 刷新token过期时间
+  @Column({ type: 'timestamp', nullable: true })
+  @Exclude()
+  refreshTokenExpiry: Date;
 
   // 支持以部分属性进行快速构造并合并到实例
   constructor(partial?: Partial<User>) {

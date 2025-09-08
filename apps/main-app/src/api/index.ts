@@ -8,3 +8,6 @@ export * from './authApi';
 
 // 用户管理相关API
 export * from './userApi';
+
+// 权限管理相关API
+export * from './permissionApi';

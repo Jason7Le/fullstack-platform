@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AuthService } from './auth.service';
-import { LoginResponseDto } from './dto/login-response.dto';
+import { LoginResponseDto, RefreshTokenDto } from './dto/login-response.dto';
 import { RegisterDto } from './dto/register.dto';
 
 // 用户信息类型定义
@@ -44,15 +44,38 @@ export class AuthController {
   @ApiOperation({ summary: '用户登录' })
   @ApiResponse({ status: 200, description: '登录成功', type: LoginResponseDto })
   @ApiResponse({ status: 401, description: '邮箱或密码错误' })
-  login(@Request() req: { user: AuthenticatedUser }): LoginResponseDto {
+  async login(
+    @Request() req: { user: AuthenticatedUser },
+    @Body() rememberMe: boolean,
+  ): Promise<LoginResponseDto> {
     // 直接使用 LocalStrategy 验证后的用户信息
     this.logger.log('登录请求', req.user);
     try {
-      const result = this.authService.generateToken(req.user);
+      const result = await this.authService.generateToken(req.user, rememberMe);
       this.logger.log('登录成功', result);
       return result;
     } catch (error) {
       this.logger.error('登录失败', error);
+      throw error;
+    }
+  }
+
+  // 用户登出
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '用户登出' })
+  @ApiResponse({ status: 200, description: '登出成功' })
+  @ApiResponse({ status: 401, description: '未授权' })
+  async logout(
+    @Request() req: { user: AuthenticatedUser },
+  ): Promise<{ message: string }> {
+    this.logger.log('用户登出', req.user);
+    try {
+      await this.authService.revokeRefreshToken(req.user.id);
+      this.logger.log('登出成功');
+      return { message: '登出成功' };
+    } catch (error) {
+      this.logger.error('登出失败', error);
       throw error;
     }
   }
@@ -65,6 +88,25 @@ export class AuthController {
   @ApiResponse({ status: 400, description: '参数验证失败' })
   async register(@Body() registerDto: RegisterDto): Promise<LoginResponseDto> {
     return this.authService.register(registerDto);
+  }
+
+  // 刷新访问令牌
+  @Post('refreshToken')
+  @ApiOperation({ summary: '刷新访问令牌' })
+  @ApiResponse({ status: 200, description: '刷新成功', type: LoginResponseDto })
+  @ApiResponse({ status: 401, description: '无效的刷新令牌' })
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<LoginResponseDto> {
+    this.logger.log('刷新访问令牌请求', refreshTokenDto);
+    try {
+      const result = await this.authService.refreshAccessToken(refreshTokenDto);
+      this.logger.log('刷新成功', result);
+      return result;
+    } catch (error) {
+      this.logger.error('刷新失败', error);
+      throw error;
+    }
   }
 
   // 获取当前用户信息：需要携带 Bearer Token

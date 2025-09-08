@@ -1,5 +1,6 @@
 import DashboardView from '@/views/DashboardView.vue';
 import LoginView from '@/views/LoginView.vue';
+import PermissionMatrixView from '@/views/PermissionMatrixView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import UserManagementView from '@/views/UserManagementView.vue';
 import type { RouteRecordRaw } from 'vue-router';
@@ -31,6 +32,12 @@ export const routes: RouteRecordRaw[] = [
     path: '/user-management',
     name: 'UserManagement',
     component: UserManagementView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/permission-matrix',
+    name: 'PermissionMatrix',
+    component: PermissionMatrixView,
     meta: { requiresAuth: true },
   },
 ];

@@ -1,42 +1,7 @@
 <template>
   <div class="dashboard-container">
     <!-- 顶部导航栏 -->
-    <el-header class="dashboard-header">
-      <div class="header-content">
-        <div class="logo-section">
-          <el-icon class="logo-icon"><DataBoard /></el-icon>
-          <h1 class="logo-text">{{ appTitle }}</h1>
-        </div>
-
-        <div class="user-section">
-          <el-dropdown @command="handleUserCommand">
-            <div class="user-info">
-              <el-avatar :size="32" :src="userInfo?.avatar">
-                {{ userInfo?.name?.charAt(0) }}
-              </el-avatar>
-              <span class="user-name">{{ userInfo?.name }}</span>
-              <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">
-                  <el-icon><User /></el-icon>
-                  个人资料
-                </el-dropdown-item>
-                <el-dropdown-item command="settings">
-                  <el-icon><Setting /></el-icon>
-                  系统设置
-                </el-dropdown-item>
-                <el-dropdown-item divided command="logout">
-                  <el-icon><SwitchButton /></el-icon>
-                  退出登录
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </div>
-    </el-header>
+    <AppNavigation />
 
     <!-- 主要内容区域 -->
     <el-main class="dashboard-main">
@@ -88,6 +53,16 @@
           </el-col>
 
           <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="feature-card" @click="navigateToFeature('permissions')">
+              <div class="feature-content">
+                <el-icon class="feature-icon" color="#409eff"><Key /></el-icon>
+                <h3>权限矩阵</h3>
+                <p>管理角色与资源权限</p>
+              </div>
+            </el-card>
+          </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
             <el-card class="feature-card" @click="navigateToFeature('settings')">
               <div class="feature-content">
                 <el-icon class="feature-icon" color="#909399"><Setting /></el-icon>
@@ -132,18 +107,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ArrowDown,
-  DataAnalysis,
-  DataBoard,
-  Document,
-  Setting,
-  SwitchButton,
-  User,
-} from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { DataAnalysis, Document, Key, User } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import AppNavigation from '../components/AppNavigation.vue';
 import { useAuthStore } from '../stores/auth';
 
 // 路由
@@ -151,9 +119,6 @@ const router = useRouter();
 
 // Auth store
 const authStore = useAuthStore();
-
-// 应用标题
-const appTitle = import.meta.env.VITE_APP_TITLE || '全栈微前端数据平台';
 
 // 用户信息
 const userInfo = ref<any>(null);
@@ -167,45 +132,14 @@ const getUserInfo = () => {
   }
 };
 
-// 处理用户下拉菜单命令
-const handleUserCommand = (command: string) => {
-  switch (command) {
-    case 'profile':
-      ElMessage.info('个人资料功能开发中...');
-      break;
-    case 'settings':
-      ElMessage.info('系统设置功能开发中...');
-      break;
-    case 'logout':
-      handleLogout();
-      break;
-  }
-};
-
-// 处理退出登录
-const handleLogout = () => {
-  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  })
-    .then(() => {
-      // 使用auth store清除登录信息
-      authStore.logout();
-
-      ElMessage.success('已退出登录');
-      router.push('/login');
-    })
-    .catch(() => {
-      // 用户取消
-    });
-};
-
 // 导航到功能页面
 const navigateToFeature = (feature: string) => {
   switch (feature) {
     case 'users':
       router.push('/user-management');
+      break;
+    case 'permissions':
+      router.push('/permission-matrix');
       break;
     default:
       ElMessage.info(`${feature} 功能正在开发中...`);
