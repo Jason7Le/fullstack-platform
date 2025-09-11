@@ -143,7 +143,7 @@ const handleLogin = async () => {
     ElMessage.success('登录成功！');
 
     // 使用auth store保存登录信息
-    authStore.login(response.data.access_token, response.data.user);
+    authStore.login(response.access_token, response.user);
 
     // 跳转到首页
     router.push('/');
@@ -155,13 +155,8 @@ const handleLogin = async () => {
       // 这是表单验证错误，不显示错误提示（Element Plus会自动显示）
       return;
     }
-
     // 只处理API错误
-    if (error.response?.data?.message) {
-      ElMessage.error(error.response.data.message);
-    } else {
-      ElMessage.error('登录失败，请检查邮箱和密码');
-    }
+    ElMessage.error('登录失败,' + error.message);
   } finally {
     loading.value = false;
   }

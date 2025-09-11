@@ -17,12 +17,15 @@ import {
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain } from 'class-transformer';
+import { NotificationsService } from 'src/websocket/notifications.service';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -51,6 +54,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -268,6 +273,15 @@ export class UsersService {
 
       // 保存更新后的用户信息
       const updatedUser = await this.usersRepository.save(user);
+
+      // 更新用户通知
+      this.notificationsService.sendUserNotification(updatedUser.id, {
+        title: '用户信息更新',
+        message: '用户信息更新成功',
+        type: 'info',
+        data: updatedUser,
+      });
+
       return this.toResponseDto(updatedUser);
     } catch (error) {
       // 重新抛出已知的业务异常

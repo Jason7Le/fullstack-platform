@@ -6,33 +6,35 @@
     <!-- 页面内容区域 -->
     <div class="page-content">
       <!-- 页面头部 -->
-      <div class="page-header">
-        <div class="header-left">
-          <!-- 返回按钮 -->
-          <el-button
-            v-if="showBackButton"
-            @click="handleBack"
-            class="back-button"
-            :icon="ArrowLeft"
-          >
-            返回
-          </el-button>
+      <div class="page-header" :class="`header-${headerTheme}`">
+        <div class="header-content">
+          <div class="header-left">
+            <!-- 返回按钮 -->
+            <el-button
+              v-if="showBackButton"
+              @click="handleBack"
+              class="back-button"
+              :icon="ArrowLeft"
+            >
+              返回
+            </el-button>
 
-          <!-- 页面标题 -->
-          <div class="page-title-section">
-            <h1 class="page-title">
-              <el-icon class="title-icon">
-                <component :is="icon" />
-              </el-icon>
-              {{ title }}
-            </h1>
-            <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
+            <!-- 页面标题 -->
+            <div class="page-title-section">
+              <h1 class="page-title">
+                <el-icon class="title-icon">
+                  <component :is="icon" />
+                </el-icon>
+                {{ title }}
+              </h1>
+              <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
+            </div>
           </div>
-        </div>
 
-        <!-- 页面操作按钮 -->
-        <div class="header-actions">
-          <slot name="actions" />
+          <!-- 页面操作按钮 -->
+          <div class="header-actions">
+            <slot name="actions" />
+          </div>
         </div>
       </div>
 
@@ -54,6 +56,7 @@ interface Props {
   icon?: string;
   showBackButton?: boolean;
   backPath?: string;
+  headerTheme?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -61,6 +64,7 @@ const props = withDefaults(defineProps<Props>(), {
   icon: 'Document',
   showBackButton: true,
   backPath: '/dashboard',
+  headerTheme: 'blue',
 });
 
 const router = useRouter();
@@ -86,14 +90,51 @@ const handleBack = () => {
 }
 
 .page-header {
+  margin-bottom: 20px;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 主题颜色 */
+.header-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.header-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.header-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.header-orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.header-red {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+}
+
+.header-teal {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
 }
 
 .header-left {
@@ -118,17 +159,17 @@ const handleBack = () => {
   margin: 0 0 8px 0;
   font-size: 24px;
   font-weight: 600;
-  color: #2c3e50;
+  color: inherit;
 }
 
 .title-icon {
   font-size: 28px;
-  color: #409eff;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .page-subtitle {
   margin: 0;
-  color: #7f8c8d;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
 }
 
@@ -151,7 +192,8 @@ const handleBack = () => {
     padding: 15px;
   }
 
-  .page-header {
+  .header-content {
+    padding: 0 15px;
     flex-direction: column;
     gap: 15px;
     align-items: stretch;

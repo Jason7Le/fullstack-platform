@@ -17,7 +17,15 @@ router.beforeEach((to, _from, next) => {
     next('/login');
   } else if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {
     // 已登录用户访问登录/注册页，跳转到Dashboard
-    next('/dashboard');
+    // 但需要检查token是否有效，避免无效token导致的循环
+    const token = authStore.token;
+    if (token && token.trim() !== '') {
+      next('/dashboard');
+    } else {
+      // token为空，清理认证信息并停留在登录页
+      authStore.clearAuthInfo();
+      next();
+    }
   } else {
     next();
   }

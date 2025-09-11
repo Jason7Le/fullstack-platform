@@ -18,7 +18,34 @@
           </div>
         </el-card>
       </div>
+      <!-- 用户信息展示 -->
+      <div class="user-info-section">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <el-icon><User /></el-icon>
+              <span>用户信息</span>
+            </div>
+          </template>
 
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="姓名">
+              {{ userInfo?.name }}
+            </el-descriptions-item>
+            <el-descriptions-item label="邮箱">
+              {{ userInfo?.email }}
+            </el-descriptions-item>
+            <el-descriptions-item label="角色">
+              <el-tag :type="getRoleTagType(userInfo?.role)">
+                {{ getRoleText(userInfo?.role) }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="注册时间">
+              {{ formatDate(userInfo?.createdAt) }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </div>
       <!-- 功能卡片区域 -->
       <div class="features-section">
         <el-row :gutter="20">
@@ -63,6 +90,26 @@
           </el-col>
 
           <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="feature-card" @click="navigateToFeature('websocket')">
+              <div class="feature-content">
+                <el-icon class="feature-icon" color="#67c23a"><Connection /></el-icon>
+                <h3>WebSocket 演示</h3>
+                <p>实时通信功能演示</p>
+              </div>
+            </el-card>
+          </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="feature-card" @click="navigateToFeature('chat-room')">
+              <div class="feature-content">
+                <el-icon class="feature-icon" color="#e6a23c"><ChatDotRound /></el-icon>
+                <h3>聊天室</h3>
+                <p>创建和管理聊天室</p>
+              </div>
+            </el-card>
+          </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
             <el-card class="feature-card" @click="navigateToFeature('settings')">
               <div class="feature-content">
                 <el-icon class="feature-icon" color="#909399"><Setting /></el-icon>
@@ -73,41 +120,19 @@
           </el-col>
         </el-row>
       </div>
-
-      <!-- 用户信息展示 -->
-      <div class="user-info-section">
-        <el-card>
-          <template #header>
-            <div class="card-header">
-              <el-icon><User /></el-icon>
-              <span>用户信息</span>
-            </div>
-          </template>
-
-          <el-descriptions :column="2" border>
-            <el-descriptions-item label="姓名">
-              {{ userInfo?.name }}
-            </el-descriptions-item>
-            <el-descriptions-item label="邮箱">
-              {{ userInfo?.email }}
-            </el-descriptions-item>
-            <el-descriptions-item label="角色">
-              <el-tag :type="getRoleTagType(userInfo?.role)">
-                {{ getRoleText(userInfo?.role) }}
-              </el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="注册时间">
-              {{ formatDate(userInfo?.createdAt) }}
-            </el-descriptions-item>
-          </el-descriptions>
-        </el-card>
-      </div>
     </el-main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DataAnalysis, Document, Key, User } from '@element-plus/icons-vue';
+import {
+  ChatDotRound,
+  Connection,
+  DataAnalysis,
+  Document,
+  Key,
+  User,
+} from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -140,6 +165,12 @@ const navigateToFeature = (feature: string) => {
       break;
     case 'permissions':
       router.push('/permission-matrix');
+      break;
+    case 'websocket':
+      router.push('/websocket-demo');
+      break;
+    case 'chat-room':
+      router.push('/chat-room');
       break;
     default:
       ElMessage.info(`${feature} 功能正在开发中...`);

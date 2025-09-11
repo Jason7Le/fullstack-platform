@@ -1,136 +1,175 @@
 <template>
-  <PageContainer
-    title="权限矩阵管理"
-    subtitle="管理角色与资源的权限关系"
-    icon="Key"
-    back-path="/dashboard"
-  >
-    <template #actions>
-      <el-button @click="validatePermissions">
-        <el-icon><View /></el-icon>
-        验证
-      </el-button>
-      <el-button @click="handleResetPermissions">
-        <el-icon><Refresh /></el-icon>
-        重置
-      </el-button>
-      <el-button @click="handleExportPermissions">
-        <el-icon><Download /></el-icon>
-        导出
-      </el-button>
-      <el-button type="primary" @click="handleSavePermissions" :loading="saving">
-        <el-icon><Check /></el-icon>
-        保存权限
-      </el-button>
-    </template>
+  <div class="permission-matrix-container">
+    <!-- 页面头部 -->
+    <PageHeader
+      title="权限矩阵管理"
+      subtitle="管理角色与资源的权限关系"
+      :icon="Key"
+      theme="purple"
+    />
 
-    <!-- 权限矩阵表格 -->
-    <div class="matrix-section">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <el-icon><Grid /></el-icon>
-            <span>权限矩阵</span>
-            <div class="matrix-info">
-              <el-tag type="info">{{ roles.length }} 个角色 × {{ resources.length }} 个资源</el-tag>
-              <el-tag type="success" class="stats-tag">
-                已授权: {{ permissionStats.grantedPermissions }}/{{
-                  permissionStats.totalPermissions
-                }}
-              </el-tag>
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+      <!-- 权限提示 -->
+      <div v-if="!authStore.isAdmin" class="permission-notice">
+        <el-alert title="只读模式" type="info" :closable="false" show-icon>
+          <template #default>
+            <p>您当前以非管理员身份访问权限矩阵，只能查看权限配置，无法进行修改操作。</p>
+          </template>
+        </el-alert>
+      </div>
+
+      <!-- 权限矩阵表格 -->
+      <div class="matrix-section">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span
+                ><el-icon><Grid /></el-icon>权限矩阵表格</span
+              >
+              <div class="toolbar-right" v-if="authStore.isAdmin">
+                <el-button @click="validatePermissions" :icon="View"> 验证权限 </el-button>
+                <el-button @click="handleResetPermissions" :icon="Refresh"> 重置权限 </el-button>
+                <el-button @click="handleExportPermissions" :icon="Download"> 导出配置 </el-button>
+                <el-button
+                  type="primary"
+                  @click="handleSavePermissions"
+                  :loading="saving"
+                  :icon="Check"
+                >
+                  保存权限
+                </el-button>
+              </div>
+            </div>
+          </template>
+
+          <div class="matrix-table">
+            <el-table
+              :data="matrixData"
+              border
+              style="width: 100%"
+              :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
+              table-layout="fixed"
+            >
+              <!-- 角色列 -->
+              <el-table-column prop="role" label="角色" width="140" fixed="left">
+                <template #default="{ row }">
+                  <el-tag :type="getRoleTagType(row.role)" size="small">
+                    {{ getRoleText(row.role) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+
+              <!-- 动态资源列 -->
+              <el-table-column
+                v-for="resource in resources"
+                :key="resource.key"
+                :label="resource.name"
+                :min-width="140"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <el-select
+                    v-if="authStore.isAdmin"
+                    v-model="row.permissions[resource.key]"
+                    size="small"
+                    @change="handlePermissionChange(row, resource.key, $event)"
+                  >
+                    <el-option label="无权限" value="none" />
+                    <el-option label="只读" value="read" />
+                    <el-option label="读写" value="write" />
+                    <el-option label="完全控制" value="full" />
+                  </el-select>
+                  <el-tag
+                    v-else
+                    :type="getPermissionTagType(row.permissions[resource.key])"
+                    size="small"
+                  >
+                    {{ getPermissionText(row.permissions[resource.key]) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-card>
+      </div>
+
+      <!-- 权限说明 -->
+      <div class="permission-legend">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>
+                <el-icon><InfoFilled /></el-icon>
+                权限级别说明
+              </span>
+            </div>
+          </template>
+          <div class="legend-content">
+            <div class="legend-grid">
+              <div class="legend-item">
+                <div class="legend-icon">
+                  <el-icon><Lock /></el-icon>
+                </div>
+                <div class="legend-info">
+                  <el-tag type="info" size="large">无权限</el-tag>
+                  <p>无法访问该资源</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-icon">
+                  <el-icon><View /></el-icon>
+                </div>
+                <div class="legend-info">
+                  <el-tag type="success" size="large">只读</el-tag>
+                  <p>只能查看，不能修改</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-icon">
+                  <el-icon><Edit /></el-icon>
+                </div>
+                <div class="legend-info">
+                  <el-tag type="warning" size="large">读写</el-tag>
+                  <p>可以查看和修改</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-icon">
+                  <el-icon><Key /></el-icon>
+                </div>
+                <div class="legend-info">
+                  <el-tag type="danger" size="large">完全控制</el-tag>
+                  <p>所有权限包括删除</p>
+                </div>
+              </div>
             </div>
           </div>
-        </template>
-
-        <div class="matrix-table">
-          <el-table
-            :data="matrixData"
-            border
-            style="width: 100%"
-            :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
-          >
-            <!-- 角色列 -->
-            <el-table-column prop="role" label="角色" width="120" fixed="left">
-              <template #default="{ row }">
-                <el-tag :type="getRoleTagType(row.role)">
-                  {{ getRoleText(row.role) }}
-                </el-tag>
-              </template>
-            </el-table-column>
-
-            <!-- 动态资源列 -->
-            <el-table-column
-              v-for="resource in resources"
-              :key="resource.key"
-              :label="resource.name"
-              :width="120"
-              align="center"
-            >
-              <template #default="{ row }">
-                <el-select
-                  v-model="row.permissions[resource.key]"
-                  size="small"
-                  @change="handlePermissionChange(row, resource.key, $event)"
-                >
-                  <el-option label="无权限" value="none" />
-                  <el-option label="只读" value="read" />
-                  <el-option label="读写" value="write" />
-                  <el-option label="完全控制" value="full" />
-                </el-select>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+        </el-card>
+      </div>
     </div>
-
-    <!-- 权限说明 -->
-    <div class="permission-legend">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <el-icon><InfoFilled /></el-icon>
-            <span>权限说明</span>
-          </div>
-        </template>
-        <div class="legend-content">
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <div class="legend-item">
-                <el-tag type="info">无权限</el-tag>
-                <span>无法访问该资源</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="legend-item">
-                <el-tag type="success">只读</el-tag>
-                <span>只能查看，不能修改</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="legend-item">
-                <el-tag type="warning">读写</el-tag>
-                <span>可以查看和修改</span>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="legend-item">
-                <el-tag type="danger">完全控制</el-tag>
-                <span>所有权限包括删除</span>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-      </el-card>
-    </div>
-  </PageContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Check, Download, Grid, InfoFilled, Refresh, View } from '@element-plus/icons-vue';
+import {
+  Check,
+  Download,
+  Edit,
+  Grid,
+  InfoFilled,
+  Key,
+  Lock,
+  Refresh,
+  View,
+} from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
-import PageContainer from '../components/PageContainer.vue';
+import PageHeader from '../components/PageHeader.vue';
+import { useAuthStore } from '../stores/auth';
+
+// Auth store
+const authStore = useAuthStore();
 
 // 角色定义
 const roles = ref([
@@ -293,6 +332,38 @@ const handleExportPermissions = () => {
   ElMessage.success('权限配置已导出');
 };
 
+// 获取权限标签类型
+const getPermissionTagType = (permission: string) => {
+  switch (permission) {
+    case 'none':
+      return 'info';
+    case 'read':
+      return 'success';
+    case 'write':
+      return 'warning';
+    case 'full':
+      return 'danger';
+    default:
+      return 'info';
+  }
+};
+
+// 获取权限文本
+const getPermissionText = (permission: string) => {
+  switch (permission) {
+    case 'none':
+      return '无权限';
+    case 'read':
+      return '只读';
+    case 'write':
+      return '读写';
+    case 'full':
+      return '完全控制';
+    default:
+      return '无权限';
+  }
+};
+
 // 验证权限配置
 const validatePermissions = () => {
   const issues: string[] = [];
@@ -334,16 +405,70 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.matrix-section {
+.permission-matrix-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 权限提示样式 */
+.permission-notice {
+  margin-bottom: 10px;
+}
+
+.permission-notice .el-alert {
+  border-radius: 8px;
+}
+
+.permission-notice .el-alert p {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 矩阵表格样式 */
+.matrix-section {
+  margin-bottom: 10px;
+}
+
+.matrix-section .el-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #303133;
+}
+
+.card-header span {
+  display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.toolbar-right .el-button {
+  font-size: 13px;
+  padding: 8px 12px;
+  height: 32px;
 }
 
 .matrix-info {
@@ -359,49 +484,157 @@ onMounted(() => {
 
 .matrix-table {
   overflow-x: auto;
+  width: 100%;
 }
 
+.matrix-table .el-table {
+  width: 100% !important;
+}
+
+.matrix-table .el-table__body-wrapper {
+  overflow-x: auto;
+}
+
+.matrix-table .el-table__header-wrapper {
+  overflow-x: auto;
+}
+
+/* 权限说明样式 */
 .permission-legend {
-  margin-top: 20px;
+  margin-top: 10px;
+}
+
+.permission-legend .el-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .legend-content {
-  padding: 10px 0;
+  padding: 20px 0;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
 }
 
-.legend-item span {
+.legend-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.legend-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+}
+
+.legend-item:nth-child(1) .legend-icon {
+  background: linear-gradient(135deg, #909399 0%, #606266 100%);
+}
+
+.legend-item:nth-child(2) .legend-icon {
+  background: linear-gradient(135deg, #67c23a 0%, #529b2e 100%);
+}
+
+.legend-item:nth-child(3) .legend-icon {
+  background: linear-gradient(135deg, #e6a23c 0%, #b88230 100%);
+}
+
+.legend-item:nth-child(4) .legend-icon {
+  background: linear-gradient(135deg, #f56c6c 0%, #c45656 100%);
+}
+
+.legend-info {
+  flex: 1;
+}
+
+.legend-info p {
+  margin: 8px 0 0 0;
   font-size: 14px;
   color: #606266;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {
-  .permission-matrix-container {
+  .main-content {
     padding: 15px;
   }
 
-  .header-content {
+  .card-header {
     flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    gap: 12px;
+    align-items: stretch;
   }
 
-  .page-title {
-    font-size: 20px;
+  .toolbar-right {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
-  .legend-content .el-row {
-    flex-direction: column;
+  .toolbar-right .el-button {
+    font-size: 12px;
+    padding: 6px 10px;
+    height: 28px;
   }
 
-  .legend-content .el-col {
-    width: 100%;
+  .matrix-table {
+    font-size: 12px;
+  }
+
+  .matrix-table .el-table-column {
+    min-width: 100px !important;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .legend-item {
+    padding: 12px;
+  }
+
+  .legend-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .matrix-table {
+    font-size: 11px;
+  }
+
+  .matrix-table .el-table-column {
+    min-width: 80px !important;
+  }
+
+  .matrix-table .el-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .matrix-table .el-select {
+    font-size: 11px;
   }
 }
 </style>

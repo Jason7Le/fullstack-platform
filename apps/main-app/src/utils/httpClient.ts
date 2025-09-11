@@ -20,7 +20,7 @@ httpClient.interceptors.request.use((config) => {
 
 // 响应拦截器：统一处理响应数据
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => response.data, // 返回响应数据而不是完整响应对象
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('access_token');
@@ -30,4 +30,4 @@ httpClient.interceptors.response.use(
   },
 );
 
-export default httpClient;
+export default httpClient as any;

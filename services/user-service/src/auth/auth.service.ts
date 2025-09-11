@@ -1,5 +1,5 @@
 import { PasswordUtil } from '@fullstack-platform/common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { User } from 'src/users/entities/user.entity';
@@ -19,6 +19,8 @@ type SafeUser = Pick<
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
@@ -88,6 +90,15 @@ export class AuthService {
   // 撤销刷新令牌（用户登出时使用）
   async revokeRefreshToken(userId: number): Promise<void> {
     await this.userService.updateRefreshToken(userId, '', new Date());
+  }
+
+  // 通知用户登出，广播在线用户数量
+  notifyUserLogout(userId: number): void {
+    // 这里可以添加通知WebSocket服务的逻辑
+    // 由于WebSocket服务在用户断开连接时会自动广播，这里暂时不需要额外处理
+    this.logger.log(
+      `用户 ${userId} 登出，WebSocket连接将在断开时自动广播在线用户数量`,
+    );
   }
 
   // 生成刷新令牌（随机字符串）

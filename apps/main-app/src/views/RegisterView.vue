@@ -215,7 +215,7 @@ const handleRegister = async () => {
     ElMessage.success('注册成功！正在自动登录...');
 
     // 使用auth store保存登录信息
-    authStore.login(response.data.access_token, response.data.user);
+    authStore.login(response.access_token, response.user);
 
     // 跳转到Dashboard页面
     router.push('/dashboard');

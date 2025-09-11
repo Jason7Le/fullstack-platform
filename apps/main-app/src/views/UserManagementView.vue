@@ -1,185 +1,198 @@
 <template>
-  <PageContainer title="用户管理" subtitle="管理系统用户和权限" icon="User" back-path="/dashboard">
-    <template #actions>
-      <el-button v-if="authStore.isAdmin" type="primary" @click="handleCreateUser">
-        <el-icon><Plus /></el-icon>
-        新增用户
-      </el-button>
-    </template>
+  <div class="user-management-container">
+    <!-- 页面头部 -->
+    <PageHeader title="用户管理" subtitle="管理系统用户和权限" :icon="User" theme="green" />
 
-    <!-- 用户列表 -->
-    <div class="user-list-section">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <el-icon><List /></el-icon>
-            <span>用户列表</span>
-            <el-tag type="info" class="user-count">共 {{ userList.length }} 个用户</el-tag>
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+      <!-- 用户列表 -->
+      <div class="user-list-section">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>
+                <el-icon><List /></el-icon>
+                用户列表
+              </span>
+              <div class="header-right">
+                <el-tag type="info" class="user-count">共 {{ userList.length }} 个用户</el-tag>
+                <el-button v-if="authStore.isAdmin" type="primary" @click="handleCreateUser">
+                  <el-icon><Plus /></el-icon>
+                  新增用户
+                </el-button>
+              </div>
+            </div>
+          </template>
+
+          <!-- 搜索和筛选 -->
+          <div class="search-section">
+            <el-row :gutter="20">
+              <el-col :span="8">
+                <el-input
+                  v-model="searchKeyword"
+                  placeholder="搜索用户邮箱或姓名"
+                  prefix-icon="Search"
+                  clearable
+                  @input="handleSearch"
+                />
+              </el-col>
+              <el-col :span="6">
+                <el-select
+                  v-model="roleFilter"
+                  placeholder="筛选角色"
+                  clearable
+                  @change="handleRoleFilter"
+                >
+                  <el-option label="全部" value="" />
+                  <el-option label="管理员" value="admin" />
+                  <el-option label="普通用户" value="user" />
+                  <el-option label="访客" value="guest" />
+                </el-select>
+              </el-col>
+              <el-col :span="4">
+                <el-button @click="handleRefresh">
+                  <el-icon><Refresh /></el-icon>
+                  刷新
+                </el-button>
+              </el-col>
+            </el-row>
+          </div>
+
+          <!-- 用户表格 -->
+          <el-table
+            :data="filteredUserList"
+            v-loading="loading"
+            stripe
+            style="width: 100%"
+            @sort-change="handleSortChange"
+            resizable
+          >
+            <el-table-column prop="id" label="ID" width="80" sortable="custom" resizable />
+            <el-table-column
+              prop="email"
+              label="邮箱"
+              min-width="200"
+              sortable="custom"
+              resizable
+            />
+            <el-table-column prop="name" label="姓名" min-width="120" sortable="custom" resizable />
+            <el-table-column prop="role" label="角色" width="100" resizable>
+              <template #default="{ row }">
+                <el-tag :type="getRoleTagType(row.role)">
+                  {{ getRoleText(row.role) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="createdAt"
+              label="创建时间"
+              width="180"
+              sortable="custom"
+              resizable
+            >
+              <template #default="{ row }">
+                {{ formatDate(row.createdAt) }}
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="updatedAt"
+              label="更新时间"
+              width="180"
+              sortable="custom"
+              resizable
+            >
+              <template #default="{ row }">
+                {{ formatDate(row.updatedAt) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="170" fixed="right" resizable>
+              <template #default="{ row }">
+                <el-button
+                  v-if="authStore.isAdmin"
+                  type="primary"
+                  size="small"
+                  @click="handleEditUser(row)"
+                >
+                  <el-icon><Edit /></el-icon>
+                  编辑
+                </el-button>
+                <el-button
+                  v-if="authStore.isAdmin"
+                  type="danger"
+                  size="small"
+                  @click="handleDeleteUser(row)"
+                >
+                  <el-icon><Delete /></el-icon>
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!-- 分页 -->
+          <div class="pagination-section">
+            <el-pagination
+              v-model:current-page="currentPage"
+              v-model:page-size="pageSize"
+              :page-sizes="[10, 20, 50, 100]"
+              :total="totalUsers"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
+        </el-card>
+      </div>
+
+      <!-- 编辑用户对话框 -->
+      <el-dialog
+        v-model="editDialogVisible"
+        :title="isEditMode ? '编辑用户' : '新增用户'"
+        width="500px"
+        @close="handleDialogClose"
+      >
+        <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px">
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="editForm.email" placeholder="请输入邮箱" :disabled="isEditMode" />
+          </el-form-item>
+          <el-form-item label="姓名" prop="name">
+            <el-input v-model="editForm.name" placeholder="请输入姓名" />
+          </el-form-item>
+          <el-form-item label="角色" prop="role">
+            <el-select v-model="editForm.role" placeholder="选择角色" style="width: 100%">
+              <el-option label="管理员" value="admin" />
+              <el-option label="普通用户" value="user" />
+              <el-option label="访客" value="guest" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="!isEditMode" label="密码" prop="password">
+            <el-input
+              v-model="editForm.password"
+              type="password"
+              placeholder="请输入密码"
+              show-password
+            />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="editDialogVisible = false">取消</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
+              {{ isEditMode ? '更新' : '创建' }}
+            </el-button>
           </div>
         </template>
-
-        <!-- 搜索和筛选 -->
-        <div class="search-section">
-          <el-row :gutter="20">
-            <el-col :span="8">
-              <el-input
-                v-model="searchKeyword"
-                placeholder="搜索用户邮箱或姓名"
-                prefix-icon="Search"
-                clearable
-                @input="handleSearch"
-              />
-            </el-col>
-            <el-col :span="6">
-              <el-select
-                v-model="roleFilter"
-                placeholder="筛选角色"
-                clearable
-                @change="handleRoleFilter"
-              >
-                <el-option label="全部" value="" />
-                <el-option label="管理员" value="admin" />
-                <el-option label="普通用户" value="user" />
-                <el-option label="访客" value="guest" />
-              </el-select>
-            </el-col>
-            <el-col :span="4">
-              <el-button @click="handleRefresh">
-                <el-icon><Refresh /></el-icon>
-                刷新
-              </el-button>
-            </el-col>
-          </el-row>
-        </div>
-
-        <!-- 用户表格 -->
-        <el-table
-          :data="filteredUserList"
-          v-loading="loading"
-          stripe
-          style="width: 100%"
-          @sort-change="handleSortChange"
-          resizable
-        >
-          <el-table-column prop="id" label="ID" width="80" sortable="custom" resizable />
-          <el-table-column prop="email" label="邮箱" min-width="200" sortable="custom" resizable />
-          <el-table-column prop="name" label="姓名" min-width="120" sortable="custom" resizable />
-          <el-table-column prop="role" label="角色" width="100" resizable>
-            <template #default="{ row }">
-              <el-tag :type="getRoleTagType(row.role)">
-                {{ getRoleText(row.role) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="createdAt"
-            label="创建时间"
-            width="180"
-            sortable="custom"
-            resizable
-          >
-            <template #default="{ row }">
-              {{ formatDate(row.createdAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="updatedAt"
-            label="更新时间"
-            width="180"
-            sortable="custom"
-            resizable
-          >
-            <template #default="{ row }">
-              {{ formatDate(row.updatedAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="170" fixed="right" resizable>
-            <template #default="{ row }">
-              <el-button
-                v-if="authStore.isAdmin"
-                type="primary"
-                size="small"
-                @click="handleEditUser(row)"
-              >
-                <el-icon><Edit /></el-icon>
-                编辑
-              </el-button>
-              <el-button
-                v-if="authStore.isAdmin"
-                type="danger"
-                size="small"
-                @click="handleDeleteUser(row)"
-              >
-                <el-icon><Delete /></el-icon>
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <!-- 分页 -->
-        <div class="pagination-section">
-          <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :page-sizes="[10, 20, 50, 100]"
-            :total="totalUsers"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </el-card>
+      </el-dialog>
     </div>
-
-    <!-- 编辑用户对话框 -->
-    <el-dialog
-      v-model="editDialogVisible"
-      :title="isEditMode ? '编辑用户' : '新增用户'"
-      width="500px"
-      @close="handleDialogClose"
-    >
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px">
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="editForm.email" placeholder="请输入邮箱" :disabled="isEditMode" />
-        </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="editForm.name" placeholder="请输入姓名" />
-        </el-form-item>
-        <el-form-item label="角色" prop="role">
-          <el-select v-model="editForm.role" placeholder="选择角色" style="width: 100%">
-            <el-option label="管理员" value="admin" />
-            <el-option label="普通用户" value="user" />
-            <el-option label="访客" value="guest" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="!isEditMode" label="密码" prop="password">
-          <el-input
-            v-model="editForm.password"
-            type="password"
-            placeholder="请输入密码"
-            show-password
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
-            {{ isEditMode ? '更新' : '创建' }}
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
-  </PageContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Delete, Edit, List, Plus, Refresh } from '@element-plus/icons-vue';
+import { Delete, Edit, List, Plus, Refresh, User } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { createUserApi, deleteUserApi, getUserListApi, updateUserApi } from '../api/userApi';
-import PageContainer from '../components/PageContainer.vue';
+import PageHeader from '../components/PageHeader.vue';
 import { useAuthStore } from '../stores/auth';
 
 // Auth store
@@ -189,6 +202,7 @@ const authStore = useAuthStore();
 const loading = ref(false);
 const submitLoading = ref(false);
 const editDialogVisible = ref(false);
+
 const isEditMode = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -252,7 +266,7 @@ const getUserList = async () => {
   try {
     loading.value = true;
     const response = await getUserListApi();
-    userList.value = response.data || [];
+    userList.value = response || [];
     totalUsers.value = userList.value.length;
   } catch (error: any) {
     console.error('获取用户列表失败:', error);
@@ -440,19 +454,42 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.user-management-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .user-list-section {
   padding: 20px;
 }
 
 .card-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
   font-weight: 600;
 }
 
+.card-header span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .user-count {
-  margin-left: auto;
+  font-size: 13px;
 }
 
 .search-section {
@@ -474,18 +511,19 @@ onMounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .user-management-container {
+  .main-content {
     padding: 15px;
   }
 
-  .header-content {
+  .card-header {
     flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    gap: 12px;
+    align-items: stretch;
   }
 
-  .page-title {
-    font-size: 20px;
+  .header-right {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .search-section .el-row {

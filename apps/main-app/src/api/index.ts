@@ -11,3 +11,7 @@ export * from './userApi';
 
 // 权限管理相关API
 export * from './permissionApi';
+
+// 通知相关API
+export * from './notificationApi';
+export * from './roomApi';

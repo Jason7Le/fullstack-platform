@@ -1,19 +1,23 @@
 // Nest 核心：模块装饰器，用于定义和组织 Nest 模块
 import { Module } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 // TypeORM 集成模块：提供与 TypeORM 的集成（数据库连接、仓库注入等）
 import { TypeOrmModule } from '@nestjs/typeorm';
 // 配置模块与服务：加载环境变量、读取配置（ConfigService 用于获取配置项）
 import { ConfigModule, ConfigService } from '@nestjs/config';
+// 事件发射器模块：用于模块间事件通信
+import { EventEmitterModule } from '@nestjs/event-emitter';
 // 应用控制器：处理路由与请求
 import { AppController } from './app.controller';
 // 应用服务：封装业务逻辑，可被控制器注入调用
 import { AppService } from './app.service';
 // 用户实体：TypeORM 实体类，映射数据库中的 users 表
 import { User } from 'users/entities/user.entity';
-import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { UsersModule } from './users/users.module';
+import { WebSocketModule } from './websocket/websocket.module';
 
 import * as path from 'path';
 
@@ -81,9 +85,13 @@ import * as path from 'path';
       }),
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(), // 事件发射器模块
     CommonModule, // 全局通用模块
     UsersModule,
     AuthModule,
+    RoomsModule, // 房间管理模块
+    WebSocketModule, // WebSocket 模块
+    NotificationsModule, // 通知模块
     // 其他模块可以继续在此添加
   ],
   // controllers: 当前模块暴露的控制器列表

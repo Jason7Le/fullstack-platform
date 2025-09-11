@@ -24,8 +24,11 @@
         </el-breadcrumb>
       </div>
 
-      <!-- 右侧：用户信息和操作 -->
+      <!-- 右侧：WebSocket状态、用户信息和操作 -->
       <div class="nav-right">
+        <!-- WebSocket状态指示器 -->
+        <WebSocketStatus />
+
         <el-dropdown @command="handleUserCommand">
           <div class="user-info">
             <el-avatar :size="32" :src="userInfo?.avatar">
@@ -62,6 +65,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import WebSocketStatus from './WebSocketStatus.vue';
 
 interface BreadcrumbItem {
   name: string;
@@ -81,8 +85,8 @@ const userInfo = computed(() => authStore.userInfo);
 
 // 面包屑导航
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
-  const items: BreadcrumbItem[] = [{ name: '首页', path: '/dashboard', icon: 'DataBoard' }];
-
+  const items: BreadcrumbItem[] = [];
+  // { name: '首页', path: '/dashboard', icon: 'DataBoard' }
   // 根据当前路由添加面包屑
   switch (route.name) {
     case 'UserManagement':

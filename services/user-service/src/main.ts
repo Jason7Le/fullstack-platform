@@ -72,9 +72,9 @@ async function bootstrap() {
   console.log('=== 服务启动完成 ===');
   // 启用 CORS
   app.enableCors({
-    origin: 'http://localhost:3001', // 允许的域名(前端地址)
+    origin: 'http://localhost:3001', // 允许访问此API服务器的前端地址
     credentials: true, // 允许携带凭证(如cookie)
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTTONS'], // 允许的请求方法
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], // 允许的请求方法
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'], // 允许的请求头
   });
   // 启动监听

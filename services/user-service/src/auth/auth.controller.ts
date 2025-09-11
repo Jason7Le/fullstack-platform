@@ -72,6 +72,10 @@ export class AuthController {
     this.logger.log('用户登出', req.user);
     try {
       await this.authService.revokeRefreshToken(req.user.id);
+
+      // 通知WebSocket服务用户登出，广播在线用户数量
+      await this.authService.notifyUserLogout(req.user.id);
+
       this.logger.log('登出成功');
       return { message: '登出成功' };
     } catch (error) {

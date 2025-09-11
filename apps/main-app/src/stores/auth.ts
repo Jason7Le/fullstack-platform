@@ -1,4 +1,5 @@
 import httpClient from '@/utils/httpClient';
+import websocketService from '@/utils/websocket';
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
@@ -9,7 +10,28 @@ export const useAuthStore = defineStore('auth', {
     isRefreshing: false,
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token,
+    isAuthenticated: (state) => {
+      // 检查token是否存在且不为空
+      if (!state.token || state.token.trim() === '') {
+        return false;
+      }
+
+      // 可以在这里添加token过期时间检查
+      // 例如检查JWT token的exp字段
+      try {
+        const payload = JSON.parse(atob(state.token.split('.')[1]));
+        const now = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < now) {
+          // token已过期，返回false，让调用方处理清理
+          return false;
+        }
+        return true;
+      } catch (error) {
+        // token格式错误，返回false
+        console.error('Token解析失败:', error);
+        return false;
+      }
+    },
     isAdmin: (state) => state.userInfo.role === 'admin',
   },
   actions: {
@@ -29,6 +51,14 @@ export const useAuthStore = defineStore('auth', {
     // 登出
     async logout() {
       try {
+        // 先断开WebSocket连接
+        try {
+          websocketService.disconnect();
+          console.log('用户退出登录，已断开WebSocket连接');
+        } catch (error) {
+          console.error('断开WebSocket连接失败:', error);
+        }
+
         await httpClient.post('/auth/logout');
       } catch (error) {
         console.error('登出失败', error);
@@ -39,6 +69,14 @@ export const useAuthStore = defineStore('auth', {
     },
     // 清除认证
     clearAuthInfo() {
+      // 先断开WebSocket连接
+      try {
+        websocketService.disconnect();
+        console.log('清除认证信息时断开WebSocket连接');
+      } catch (error) {
+        console.error('断开WebSocket连接失败:', error);
+      }
+
       this.token = null;
       this.refreshToken = null;
       this.userInfo = null;
@@ -59,15 +97,22 @@ export const useAuthStore = defineStore('auth', {
 
       this.isRefreshing = true;
       try {
-        const response = await httpClient.post('/auth/refreshToken', {
+        const response = (await httpClient.post('/auth/refreshToken', {
           refresh_token: this.refreshToken,
-        });
-        this.setAuthInfo(
-          response.data.access_token,
-          response.data.refresh_token,
-          response.data.user,
-        );
-        return response.data.access_token;
+        })) as {
+          access_token: string;
+          refresh_token: string;
+          user: {
+            id: number;
+            email: string;
+            name: string;
+            role: string;
+            createdAt: Date;
+            updatedAt: Date;
+          };
+        };
+        this.setAuthInfo(response.access_token, response.refresh_token, response.user);
+        return response.access_token;
       } catch (error) {
         console.error('刷新令牌失败', error);
         throw error;
