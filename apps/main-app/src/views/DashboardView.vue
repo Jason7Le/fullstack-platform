@@ -118,6 +118,16 @@
               </div>
             </el-card>
           </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="feature-card" @click="navigateToFeature('micro-frontend')">
+              <div class="feature-content">
+                <el-icon class="feature-icon" color="#722ed1"><Grid /></el-icon>
+                <h3>微前端远程页面：dashboard-app</h3>
+                <p>体验模块联邦远程组件</p>
+              </div>
+            </el-card>
+          </el-col>
         </el-row>
       </div>
     </el-main>
@@ -130,6 +140,7 @@ import {
   Connection,
   DataAnalysis,
   Document,
+  Grid,
   Key,
   User,
 } from '@element-plus/icons-vue';
@@ -171,6 +182,9 @@ const navigateToFeature = (feature: string) => {
       break;
     case 'chat-room':
       router.push('/chat-room');
+      break;
+    case 'micro-frontend':
+      router.push('/dashboard-remote');
       break;
     default:
       ElMessage.info(`${feature} 功能正在开发中...`);

@@ -149,3 +149,35 @@ pnpm run dev
 - 后端 API：http://localhost:3000
 - API 文档：http://localhost:3000/apiSwaggerDoc
 - 前端应用：http://localhost:5173
+
+### 本地调试远程页面组件（模块联邦）
+
+推荐方式：远程子应用用“生产构建 + 预览”，主应用继续 dev。
+
+1. 在 `apps/dashboard-app`：
+
+```bash
+pnpm build
+pnpm preview --port 3003 --strictPort
+```
+
+2. 在 `apps/main-app/.env.development` 设置远程入口：
+
+```env
+VITE_REMOTE_DASHBOARD_URL=http://localhost:3003/assets/remoteEntry.js
+VITE_APP_PORT=3001
+```
+
+3. 在 `apps/main-app` 启动主应用：
+
+```bash
+pnpm dev
+```
+
+4. 访问远程页面路由：
+
+```
+http://localhost:3001/dashboard-remote
+```
+
+说明：当前 Vite 7 + @originjs/vite-plugin-federation 组合在 dev 模式不会产出物理 `remoteEntry.js`，因此通过 `preview` 提供构建产物更稳定。需要热更新可使用构建 watch + 预览的组合（刷新即可看到更新）。

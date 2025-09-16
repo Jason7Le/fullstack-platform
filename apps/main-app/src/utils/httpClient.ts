@@ -5,7 +5,7 @@ import axios from 'axios';
  * 提供统一的axios实例，包含请求/响应拦截器
  */
 const httpClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
   timeout: 10000,
 });
 

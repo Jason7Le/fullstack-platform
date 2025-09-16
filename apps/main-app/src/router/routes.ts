@@ -10,6 +10,14 @@ import type { RouteRecordRaw } from 'vue-router';
 // 路由配置
 export const routes: RouteRecordRaw[] = [
   {
+    path: '/dashboard-remote',
+    name: 'DashboardRemote',
+    component: () => import('dashboard-app/RemotePage'),
+    meta: {
+      title: 'Dashboard Remote',
+    },
+  },
+  {
     path: '/',
     name: 'Home',
     redirect: '/dashboard',
