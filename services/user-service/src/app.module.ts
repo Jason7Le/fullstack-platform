@@ -12,12 +12,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 // 用户实体：TypeORM 实体类，映射数据库中的 users 表
 import { User } from 'users/entities/user.entity';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
 import { WebSocketModule } from './websocket/websocket.module';
+// 统一监控模块
+import { MonitoringModule } from '@platform/monitoring';
 
 import * as path from 'path';
 
@@ -86,12 +89,21 @@ import * as path from 'path';
       inject: [ConfigService],
     }),
     EventEmitterModule.forRoot(), // 事件发射器模块
+    // 统一监控模块
+    MonitoringModule.forRoot({
+      serviceName: 'user-service',
+      serviceVersion: '1.0.0',
+      jaegerEndpoint: process.env.JAEGER_ENDPOINT,
+      prometheusPort: parseInt(process.env.PROMETHEUS_PORT || '9090'),
+      environment: process.env.NODE_ENV || 'development',
+    }),
     CommonModule, // 全局通用模块
     UsersModule,
     AuthModule,
     RoomsModule, // 房间管理模块
     WebSocketModule, // WebSocket 模块
     NotificationsModule, // 通知模块
+    AnalyticsModule, // 分析模块
     // 其他模块可以继续在此添加
   ],
   // controllers: 当前模块暴露的控制器列表

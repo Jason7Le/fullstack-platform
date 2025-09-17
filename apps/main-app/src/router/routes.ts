@@ -1,3 +1,4 @@
+import { microFrontendMonitor } from '@/utils/microFrontendMonitor';
 import ChatRoomView from '@/views/ChatRoomView.vue';
 import DashboardView from '@/views/DashboardView.vue';
 import LoginView from '@/views/LoginView.vue';
@@ -12,7 +13,19 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard-remote',
     name: 'DashboardRemote',
-    component: () => import('dashboard-app/RemotePage'),
+    component: () => {
+      const startTime = performance.now();
+      return import('dashboard-app/RemotePage')
+        .then((module) => {
+          const endTime = performance.now();
+          microFrontendMonitor.recordLoadTime('DashboardRemote', endTime - startTime);
+          return module;
+        })
+        .catch((error) => {
+          microFrontendMonitor.recordError('DashboardRemote', error);
+          throw error;
+        });
+    },
     meta: {
       title: 'Dashboard Remote',
     },

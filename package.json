@@ -13,6 +13,7 @@
     "dev:frontend": "cd apps/main-app && pnpm run dev",
     "dev:dashboard": "cd apps/dashboard-app && pnpm run dev",
     "dev:backend": "cd services/user-service && pnpm run start:dev",
+    "preview:dashboard": "cd apps/dashboard-app && pnpm run preview --port 3003 --strictPort",
     "build": "pnpm run build:frontend && pnpm run build:backend",
     "build:frontend": "cd apps/main-app && pnpm run build",
     "build:dashboard": "cd apps/dashboard-app && pnpm run build",
@@ -33,7 +34,8 @@
     "format:fix": "prettier . --write",
     "clean": "rimraf apps/*/dist services/*/dist packages/*/dist",
     "prepare": "husky",
-    "build:packges": "pnpm run -r --fliter=./packages/* build"
+    "build:packages": "pnpm run -r --filter=./packages/* build",
+    "build:monitoring": "cd packages/monitoring && pnpm run build"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.42.0",

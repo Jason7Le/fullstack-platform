@@ -2,12 +2,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  ErrorMonitoringService,
+  ErrorTrackingInterceptor,
+  GlobalExceptionFilter,
+  MonitoringService,
+  PerformanceInterceptor,
+} from '@platform/monitoring';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
-// import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-// import { RolesGuard } from './common/guards/roles.guard';
-
 // 应用入口函数：启动 Nest 应用与全局配置
 async function bootstrap() {
   // 创建应用实例
@@ -16,7 +19,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   // 读取应用端口，默认 3000
   const port = configService.get<number>('APP_PORT') || 3000;
-
   // Swagger 文档初始化
   const SwaggerConfig = new DocumentBuilder()
     .setTitle('用户服务 API') // 文档标题
@@ -55,12 +57,17 @@ async function bootstrap() {
   // 注意：这里不设置全局JWT守卫，而是在需要保护的控制器上单独设置
   // app.useGlobalGuards(new JwtAuthGuard(), new RolesGuard(reflector));
 
-  // 全局拦截器：统一响应结构
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // 全局拦截器：统一响应结构 + 性能监控 + 错误追踪
+  app.useGlobalInterceptors(
+    new TransformInterceptor(),
+    new PerformanceInterceptor(app.get(MonitoringService)),
+    new ErrorTrackingInterceptor(app.get(ErrorMonitoringService)),
+  );
 
-  // 全局异常过滤器：兜底异常与 HTTP 异常处理
-  // app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // 全局异常过滤器：使用统一监控的异常过滤器
+  app.useGlobalFilters(
+    new GlobalExceptionFilter(app.get(ErrorMonitoringService)),
+  );
 
   console.log('=== 服务启动信息 ===');
   console.log('环境变量验证:');
@@ -77,6 +84,15 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], // 允许的请求方法
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'], // 允许的请求头
   });
+
+  // 添加指标端点
+  app.use('/metrics', async (req, res) => {
+    const monitoringService = app.get(MonitoringService);
+    const metrics = await monitoringService.getMetrics();
+    res.set('Content-Type', 'text/plain');
+    res.send(metrics);
+  });
+
   // 启动监听
   await app.listen(port);
 }

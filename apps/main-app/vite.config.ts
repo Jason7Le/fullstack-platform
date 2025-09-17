@@ -39,6 +39,21 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_APP_TITLE': JSON.stringify(env.VITE_APP_TITLE),
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
       'import.meta.env.VITE_APP_VERSION': JSON.stringify(env.VITE_APP_VERSION),
+      'import.meta.env.VITE_WEB_VITALS_ENABLED': JSON.stringify(env.VITE_WEB_VITALS_ENABLED),
+      'import.meta.env.VITE_WEB_VITALS_PAGES': JSON.stringify(env.VITE_WEB_VITALS_PAGES),
+      'import.meta.env.VITE_MICRO_FRONTEND_ENABLED': JSON.stringify(
+        env.VITE_MICRO_FRONTEND_ENABLED,
+      ),
+      'import.meta.env.VITE_MICRO_FRONTEND_PAGES': JSON.stringify(env.VITE_MICRO_FRONTEND_PAGES),
+      'import.meta.env.VITE_ERROR_MONITORING_ENABLED': JSON.stringify(
+        env.VITE_ERROR_MONITORING_ENABLED,
+      ),
+      'import.meta.env.VITE_ERROR_MONITORING_PAGES': JSON.stringify(
+        env.VITE_ERROR_MONITORING_PAGES,
+      ),
+      'import.meta.env.VITE_GA_MEASUREMENT_ID': JSON.stringify(env.VITE_GA_MEASUREMENT_ID),
+      'import.meta.env.VITE_ANALYTICS_ENDPOINT': JSON.stringify(env.VITE_ANALYTICS_ENDPOINT),
+      'import.meta.env.VITE_WEBSOCKET_URL': JSON.stringify(env.VITE_WEBSOCKET_URL),
     },
     // 资源优化配置
     build: {
