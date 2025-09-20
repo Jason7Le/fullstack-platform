@@ -185,7 +185,7 @@ class WebsocketService {
         });
 
         // 连接错误事件
-        this.socket.on('connect_error', (error) => {
+        this.socket.on('connect_error', error => {
           console.error('WebSocket 连接失败:', error);
           this.status = ConnectionStatus.ERROR;
 
@@ -204,7 +204,7 @@ class WebsocketService {
         });
 
         // 断开连接事件
-        this.socket.on('disconnect', (reason) => {
+        this.socket.on('disconnect', reason => {
           console.log('WebSocket 断开连接:', reason);
           this.status = ConnectionStatus.DISCONNECTED;
 
@@ -223,7 +223,7 @@ class WebsocketService {
         });
 
         // 服务器认证成功事件
-        this.socket.on('connected', (data) => {
+        this.socket.on('connected', data => {
           console.log('WebSocket 认证成功:', data);
           this.status = ConnectionStatus.CONNECTED;
           this.triggerEvent('connected', data);
@@ -238,7 +238,7 @@ class WebsocketService {
         });
 
         // 服务器错误事件
-        this.socket.on('error', (error) => {
+        this.socket.on('error', error => {
           console.error('WebSocket 服务器错误:', error);
 
           // 某些错误不应该断开连接
@@ -321,7 +321,7 @@ class WebsocketService {
     });
 
     // 监听在线用户列表
-    this.socket.on('online_users', (data) => {
+    this.socket.on('online_users', data => {
       console.log('收到在线用户列表:', data);
       this.triggerEvent('online_users', data);
     });
@@ -410,7 +410,7 @@ class WebsocketService {
     const listeners = this.eventListeners.get(event);
     console.log(`WebSocketService: 找到 ${listeners?.length || 0} 个监听器`);
     if (listeners) {
-      listeners.forEach((callback) => {
+      listeners.forEach(callback => {
         try {
           console.log(`WebSocketService: 执行 ${event} 回调`);
           callback(data);

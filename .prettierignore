@@ -1,0 +1,78 @@
+# 依赖目录
+node_modules/
+**/node_modules/
+
+# 构建输出
+dist/
+build/
+**/dist/
+**/build/
+
+# 日志文件
+*.log
+logs/
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 缓存文件
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+
+# 临时文件
+tmp/
+temp/
+**/tmp/
+**/temp/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.vscode/settings.json
+.idea/
+
+# 包管理器文件
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# 数据库文件
+*.db
+*.sqlite
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+
+# 图片和媒体文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+*.mp4
+*.mp3
+*.wav
+
+# 字体文件
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# 其他不需要格式化的文件
+*.min.js
+*.min.css
+coverage/
+.nyc_output/

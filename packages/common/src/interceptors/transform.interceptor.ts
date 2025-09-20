@@ -7,7 +7,7 @@ import { instanceToPlain } from 'class-transformer';
 export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => {
+      map(data => {
         // 处理空数据
         if (data === null || data === undefined) {
           return data;
@@ -15,7 +15,7 @@ export class TransformInterceptor implements NestInterceptor {
 
         // 如果是数组，转换每个元素
         if (Array.isArray(data)) {
-          return data.map((item) => this.transformItem(item));
+          return data.map(item => this.transformItem(item));
         }
 
         // 如果是分页数据
@@ -43,7 +43,7 @@ export class TransformInterceptor implements NestInterceptor {
       const transformed = instanceToPlain(item);
 
       // 处理嵌套对象
-      Object.keys(transformed).forEach((key) => {
+      Object.keys(transformed).forEach(key => {
         if (transformed[key] instanceof Object && !(transformed[key] instanceof Date)) {
           transformed[key] = this.transformItem(transformed[key]);
         }

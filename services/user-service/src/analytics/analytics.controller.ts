@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -275,14 +276,214 @@ export class AnalyticsController {
   @ApiOperation({ summary: '获取监控指标' })
   @ApiResponse({ status: 200, description: '返回监控指标数据' })
   async getMetrics() {
-    // 这里可以返回 Prometheus 指标或其他监控数据
+    // 模拟监控数据，实际项目中应该从数据库或监控系统获取
+    const mockMetrics = {
+      webVitals: {
+        TTFB: { value: 120, rating: 'good', unit: 'ms' },
+        FCP: { value: 800, rating: 'good', unit: 'ms' },
+        LCP: { value: 1200, rating: 'good', unit: 'ms' },
+        INP: { value: 100, rating: 'good', unit: 'ms' },
+        CLS: { value: 0.05, rating: 'good', unit: '' },
+      },
+      microFrontend: {
+        totalLoads: 156,
+        averageLoadTime: 180,
+        errorRate: 0.02,
+        components: ['DashboardRemote', 'UserManagement', 'PermissionMatrix'],
+      },
+      errors: {
+        totalErrors: 12,
+        criticalErrors: 1,
+        warningErrors: 3,
+        infoErrors: 8,
+        errorRate: 0.05,
+      },
+      system: {
+        uptime: '99.9%',
+        responseTime: 150,
+        throughput: 1200,
+        activeUsers: 45,
+      },
+    };
+
     return {
       success: true,
       data: {
-        message: '监控指标接口',
+        message: '监控指标数据',
         timestamp: new Date().toISOString(),
-        // 这里可以集成实际的监控数据
-        // metrics: await this.monitoringService.getMetrics(),
+        metrics: mockMetrics,
+      },
+    };
+  }
+
+  /**
+   * 获取 Web Vitals 历史数据
+   * 返回指定时间范围内的 Web Vitals 数据
+   *
+   * @param startTime - 开始时间（可选）
+   * @param endTime - 结束时间（可选）
+   * @returns Web Vitals 历史数据
+   */
+  @Get('web-vitals/history')
+  @ApiOperation({ summary: '获取 Web Vitals 历史数据' })
+  @ApiResponse({ status: 200, description: '返回 Web Vitals 历史数据' })
+  async getWebVitalsHistory(
+    @Query('startTime') startTime?: string,
+    @Query('endTime') endTime?: string,
+  ) {
+    // 模拟历史数据
+    const mockHistoryData = [
+      {
+        timestamp: Date.now() - 3600000,
+        TTFB: 120,
+        FCP: 800,
+        LCP: 1200,
+        INP: 100,
+        CLS: 0.05,
+        page: '/dashboard',
+      },
+      {
+        timestamp: Date.now() - 1800000,
+        TTFB: 110,
+        FCP: 750,
+        LCP: 1150,
+        INP: 95,
+        CLS: 0.03,
+        page: '/dashboard',
+      },
+      {
+        timestamp: Date.now() - 900000,
+        TTFB: 130,
+        FCP: 850,
+        LCP: 1250,
+        INP: 105,
+        CLS: 0.07,
+        page: '/user-management',
+      },
+    ];
+
+    return {
+      success: true,
+      data: {
+        message: 'Web Vitals 历史数据',
+        startTime:
+          startTime || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        endTime: endTime || new Date().toISOString(),
+        history: mockHistoryData,
+      },
+    };
+  }
+
+  /**
+   * 获取微前端性能数据
+   * 返回微前端组件的性能统计
+   *
+   * @returns 微前端性能数据
+   */
+  @Get('micro-frontend/performance')
+  @ApiOperation({ summary: '获取微前端性能数据' })
+  @ApiResponse({ status: 200, description: '返回微前端性能数据' })
+  async getMicroFrontendPerformance() {
+    // 模拟微前端性能数据
+    const mockPerformanceData = [
+      {
+        componentName: 'DashboardRemote',
+        loadTime: 150,
+        renderTime: 80,
+        errorCount: 0,
+        loadCount: 45,
+        averageLoadTime: 145,
+        lastLoadTime: Date.now() - 300000,
+      },
+      {
+        componentName: 'UserManagement',
+        loadTime: 200,
+        renderTime: 120,
+        errorCount: 1,
+        loadCount: 23,
+        averageLoadTime: 195,
+        lastLoadTime: Date.now() - 600000,
+      },
+      {
+        componentName: 'PermissionMatrix',
+        loadTime: 180,
+        renderTime: 100,
+        errorCount: 0,
+        loadCount: 12,
+        averageLoadTime: 175,
+        lastLoadTime: Date.now() - 900000,
+      },
+    ];
+
+    return {
+      success: true,
+      data: {
+        message: '微前端性能数据',
+        timestamp: new Date().toISOString(),
+        performance: mockPerformanceData,
+      },
+    };
+  }
+
+  /**
+   * 获取错误统计
+   * 返回系统错误统计信息
+   *
+   * @returns 错误统计数据
+   */
+  @Get('errors/statistics')
+  @ApiOperation({ summary: '获取错误统计' })
+  @ApiResponse({ status: 200, description: '返回错误统计数据' })
+  async getErrorStatistics() {
+    // 模拟错误统计数据
+    const mockErrorStats = {
+      totalErrors: 12,
+      errorsByType: {
+        TypeError: 5,
+        ReferenceError: 3,
+        NetworkError: 2,
+        ValidationError: 2,
+      },
+      errorsBySeverity: {
+        critical: 1,
+        high: 2,
+        medium: 4,
+        low: 5,
+      },
+      errorsByComponent: {
+        DashboardRemote: 3,
+        UserManagement: 4,
+        PermissionMatrix: 2,
+        MainApp: 3,
+      },
+      recentErrors: [
+        {
+          id: 'error-001',
+          type: 'TypeError',
+          message: 'Cannot read property of undefined',
+          component: 'DashboardRemote',
+          severity: 'medium',
+          timestamp: Date.now() - 300000,
+          url: '/dashboard-remote',
+        },
+        {
+          id: 'error-002',
+          type: 'NetworkError',
+          message: 'Failed to fetch user data',
+          component: 'UserManagement',
+          severity: 'high',
+          timestamp: Date.now() - 600000,
+          url: '/user-management',
+        },
+      ],
+    };
+
+    return {
+      success: true,
+      data: {
+        message: '错误统计数据',
+        timestamp: new Date().toISOString(),
+        statistics: mockErrorStats,
       },
     };
   }

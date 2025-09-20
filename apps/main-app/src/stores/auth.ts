@@ -10,7 +10,7 @@ export const useAuthStore = defineStore('auth', {
     isRefreshing: false,
   }),
   getters: {
-    isAuthenticated: (state) => {
+    isAuthenticated: state => {
       // 检查token是否存在且不为空
       if (!state.token || state.token.trim() === '') {
         return false;
@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
         return false;
       }
     },
-    isAdmin: (state) => state.userInfo.role === 'admin',
+    isAdmin: state => state.userInfo.role === 'admin',
   },
   actions: {
     // 设置认证信息（登录时使用）

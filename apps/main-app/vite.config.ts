@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       // 开发服务器配置
-      port: parseInt(env.VITE_APP_PORT) || 3001,
+      port: parseInt(env.VITE_APP_PORT) || 5173,
     },
     define: {
       // 将环境变量注入到前端代码中

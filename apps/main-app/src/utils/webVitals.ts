@@ -82,7 +82,7 @@ function loadPendingMetricsFromStorage(): void {
       const metrics = JSON.parse(stored);
       if (Array.isArray(metrics)) {
         // 过滤掉已经提交过的指标
-        const newMetrics = metrics.filter((metric) => !isMetricAlreadySubmitted(metric.id));
+        const newMetrics = metrics.filter(metric => !isMetricAlreadySubmitted(metric.id));
         if (newMetrics.length > 0) {
           pendingMetrics.push(...newMetrics);
           console.log(`[Web Vitals] 从本地存储加载了 ${newMetrics.length} 个待提交指标`);
@@ -125,7 +125,7 @@ async function sendMetricsToAnalytics(metrics: WebVitalMetric[]): Promise<void> 
 
   // 发送到 Google Analytics（如果可用）
   if (typeof window !== 'undefined' && window.gtag) {
-    metrics.forEach((metric) => {
+    metrics.forEach(metric => {
       window.gtag('event', metric.name, {
         event_category: 'Web Vitals',
         event_label: metric.id,
@@ -141,7 +141,7 @@ async function sendMetricsToAnalytics(metrics: WebVitalMetric[]): Promise<void> 
   if (analyticsEndpoint) {
     try {
       const batchData = {
-        metrics: metrics.map((metric) => ({
+        metrics: metrics.map(metric => ({
           name: metric.name,
           value: metric.value,
           unit: metric.name === 'CLS' ? 'unitless' : 'ms',
@@ -226,7 +226,7 @@ function handleMetric(metric: WebVitalMetric): void {
     sendMetricsToAnalytics(allMetrics);
 
     // 标记所有指标为已提交，防止重复提交
-    allMetrics.forEach((m) => markMetricAsSubmitted(m.id));
+    allMetrics.forEach(m => markMetricAsSubmitted(m.id));
 
     // 清空待提交列表
     pendingMetrics.length = 0;

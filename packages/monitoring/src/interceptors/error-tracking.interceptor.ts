@@ -12,7 +12,7 @@ export class ErrorTrackingInterceptor implements NestInterceptor {
     const serviceName = request.route?.path?.split('/')[1] || 'unknown';
 
     return next.handle().pipe(
-      catchError((error) => {
+      catchError(error => {
         // 根据错误类型进行分类
         if (error.name === 'ValidationError') {
           this.errorMonitoringService.recordValidationError(error, serviceName);

@@ -201,9 +201,9 @@ const permissionStats = ref({
 
 // 初始化矩阵数据
 const initMatrixData = () => {
-  matrixData.value = roles.value.map((role) => {
+  matrixData.value = roles.value.map(role => {
     const permissions: any = {};
-    resources.value.forEach((resource) => {
+    resources.value.forEach(resource => {
       // 设置默认权限
       permissions[resource.key] = getDefaultPermission(role.key, resource.key);
     });
@@ -223,8 +223,8 @@ const calculatePermissionStats = () => {
   const total = roles.value.length * resources.value.length;
   let granted = 0;
 
-  matrixData.value.forEach((row) => {
-    Object.values(row.permissions).forEach((permission) => {
+  matrixData.value.forEach(row => {
+    Object.values(row.permissions).forEach(permission => {
       if (permission !== 'none') {
         granted++;
       }
@@ -303,7 +303,7 @@ const handleSavePermissions = async () => {
     // await savePermissionMatrixApi(matrixData.value);
 
     // 模拟API调用
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     ElMessage.success('权限配置保存成功');
   } catch (error) {
@@ -369,23 +369,21 @@ const validatePermissions = () => {
   const issues: string[] = [];
 
   // 检查是否有管理员角色
-  const adminRole = matrixData.value.find((row) => row.role === 'admin');
+  const adminRole = matrixData.value.find(row => row.role === 'admin');
   if (!adminRole) {
     issues.push('缺少管理员角色');
   } else {
     // 检查管理员是否有所有权限
     const adminPermissions = Object.values(adminRole.permissions);
-    const hasAllPermissions = adminPermissions.every((permission) => permission !== 'none');
+    const hasAllPermissions = adminPermissions.every(permission => permission !== 'none');
     if (!hasAllPermissions) {
       issues.push('管理员应该拥有所有资源的权限');
     }
   }
 
   // 检查是否有资源没有任何权限
-  resources.value.forEach((resource) => {
-    const hasAnyPermission = matrixData.value.some(
-      (row) => row.permissions[resource.key] !== 'none',
-    );
+  resources.value.forEach(resource => {
+    const hasAnyPermission = matrixData.value.some(row => row.permissions[resource.key] !== 'none');
     if (!hasAnyPermission) {
       issues.push(`资源 "${resource.name}" 没有任何角色可以访问`);
     }

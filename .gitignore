@@ -3,20 +3,20 @@
 # ========================
 
 # 忽略所有实际环境变量文件
-.env
-.env.*
-!/.env.example
+# .env
+# .env.*
+# !/.env.example去掉了
 
-# 忽略服务级环境变量
-services/*/.env
-services/*/.env.*
+# # 忽略服务级环境变量
+# services/*/.env
+# services/*/.env.*
 
-# 忽略应用级环境变量
-apps/*/.env
-apps/*/.env.*
+# # 忽略应用级环境变量
+# apps/*/.env
+# apps/*/.env.*
 
-# 但保留所有示例文件
-!**/.env.example
+# # 但保留所有示例文件
+# !**/.env.example
 
 # ========================
 # 其他忽略规则（保持原有）

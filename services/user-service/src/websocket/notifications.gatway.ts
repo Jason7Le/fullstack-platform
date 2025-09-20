@@ -66,7 +66,11 @@ interface RoomApplication {
 @WebSocketGateway({
   namespace: 'notifications', // WebSocket 命名空间，用于区分不同的 WebSocket 服务
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001', // 允许访问此WebSocket服务器的前端地址
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3001',
+      'http://localhost:5173', // 前端开发服务器
+      'http://localhost:3000', // API 网关
+    ], // 允许访问此WebSocket服务器的前端地址
     credentials: true, // 允许携带认证信息（如 cookies）
   },
 })

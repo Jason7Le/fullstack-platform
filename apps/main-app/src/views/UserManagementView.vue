@@ -248,14 +248,14 @@ const filteredUserList = computed(() => {
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase();
     filtered = filtered.filter(
-      (user) =>
+      user =>
         user.email.toLowerCase().includes(keyword) || user.name.toLowerCase().includes(keyword),
     );
   }
 
   // 按角色筛选
   if (roleFilter.value) {
-    filtered = filtered.filter((user) => user.role === roleFilter.value);
+    filtered = filtered.filter(user => user.role === roleFilter.value);
   }
 
   return filtered;

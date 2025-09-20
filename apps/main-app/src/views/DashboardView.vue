@@ -110,6 +110,16 @@
           </el-col>
 
           <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="feature-card" @click="navigateToFeature('monitoring')">
+              <div class="feature-content">
+                <el-icon class="feature-icon" color="#67c23a"><TrendCharts /></el-icon>
+                <h3>性能监控</h3>
+                <p>系统性能和用户体验监控</p>
+              </div>
+            </el-card>
+          </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
             <el-card class="feature-card" @click="navigateToFeature('settings')">
               <div class="feature-content">
                 <el-icon class="feature-icon" color="#909399"><Setting /></el-icon>
@@ -142,6 +152,7 @@ import {
   Document,
   Grid,
   Key,
+  TrendCharts,
   User,
 } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -182,6 +193,12 @@ const navigateToFeature = (feature: string) => {
       break;
     case 'chat-room':
       router.push('/chat-room');
+      break;
+    case 'monitoring':
+      router.push('/monitoring');
+      break;
+    case 'settings':
+      router.push('/settings');
       break;
     case 'micro-frontend':
       router.push('/dashboard-remote');

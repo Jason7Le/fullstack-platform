@@ -290,7 +290,7 @@ handleRoomListUpdated = (data: {
   // 更新房间列表
   if (globalState.roomList.value) {
     // 检查房间是否已存在
-    const existingIndex = globalState.roomList.value.findIndex((r) => r.id === data.room.id);
+    const existingIndex = globalState.roomList.value.findIndex(r => r.id === data.room.id);
     if (existingIndex >= 0) {
       // 更新现有房间（包括在线人数）
       globalState.roomList.value[existingIndex] = data.room;
@@ -384,7 +384,7 @@ handleRoomDestroyed = (data: { room: any; message: string }) => {
 
   // 从房间列表中移除被销毁的房间
   if (globalState.roomList.value) {
-    const roomIndex = globalState.roomList.value.findIndex((r) => r.id === data.room.id);
+    const roomIndex = globalState.roomList.value.findIndex(r => r.id === data.room.id);
     if (roomIndex >= 0) {
       globalState.roomList.value.splice(roomIndex, 1);
     }
@@ -499,20 +499,9 @@ export function useWebSocket() {
     websocketService.on('room_message_received', handleRoomMessageReceived);
     websocketService.on('room_history', handleRoomHistory);
 
-    // 加载房间列表
-    console.log('useWebSocket: 开始加载房间列表');
-    roomApi
-      .getRoomList()
-      .then((rooms) => {
-        console.log('useWebSocket: 获取房间列表成功:', rooms);
-        if (globalState) {
-          globalState.roomList.value = rooms;
-          console.log('useWebSocket: 设置roomList:', globalState.roomList.value);
-        }
-      })
-      .catch((error) => {
-        console.error('useWebSocket: 加载房间列表失败', error);
-      });
+    // 延迟加载房间列表，只在需要时加载
+    // 避免在不需要聊天功能的页面（如监控页面）自动加载房间列表
+    console.log('useWebSocket: 全局状态已创建，房间列表将在需要时加载');
   }
 
   // 使用全局状态
@@ -568,7 +557,7 @@ export function useWebSocket() {
   });
 
   const unreadCount = computed(() => {
-    return notifications.value?.filter((n) => !n.read).length || 0;
+    return notifications.value?.filter(n => !n.read).length || 0;
   });
 
   /**
@@ -690,7 +679,7 @@ export function useWebSocket() {
    * 标记通知为已读
    */
   const markAsRead = (notificationId: string) => {
-    const notification = notifications.value?.find((n) => n.id === notificationId);
+    const notification = notifications.value?.find(n => n.id === notificationId);
     if (notification) {
       notification.read = true;
     }
@@ -763,6 +752,13 @@ export function useWebSocket() {
   const getRoomList = async () => {
     try {
       console.log('useWebSocket: 调用getRoomList API');
+
+      // 如果已经有房间列表数据且不为空，直接返回
+      if (globalState && globalState.roomList.value && globalState.roomList.value.length > 0) {
+        console.log('useWebSocket: 使用缓存的房间列表');
+        return globalState.roomList.value;
+      }
+
       const rooms = await roomApi.getRoomList();
       console.log('useWebSocket: getRoomList API返回:', rooms);
       if (globalState) {

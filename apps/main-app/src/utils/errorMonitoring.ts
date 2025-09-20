@@ -21,7 +21,7 @@ function shouldMonitorCurrentPage(): boolean {
   }
 
   // 解析监控页面配置
-  const pagesToMonitor = enabledPages.split(',').map((page) => page.trim());
+  const pagesToMonitor = enabledPages.split(',').map(page => page.trim());
   const currentPath = window.location.pathname;
 
   // 检查当前页面是否在监控列表中
@@ -105,12 +105,12 @@ export class ErrorMonitoringService {
     const service = new ErrorMonitoringService();
 
     // 监听全局 JavaScript 错误
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       service.handleGlobalError(event);
     });
 
     // 监听未处理的 Promise 拒绝
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       service.handleUnhandledRejection(event);
     });
 

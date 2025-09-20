@@ -51,10 +51,10 @@ const password = 'password123';
 // 验证密码
 bcrypt
   .compare(password, passwordHash)
-  .then((result) => {
+  .then(result => {
     console.log('密码验证结果:', result);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('密码验证错误:', error);
   });
 ```
@@ -81,7 +81,7 @@ docker exec platform-mysql mysql -u app_user -puserpassword -D user_db -e "SELEC
 const normalPasswordHash = '$2b$10$.YQ9oyk66Qn3hVzEMwRbOeZ/0a8CEr4TESvqzHdLdRvLXyxhAZ3iC';
 const password = 'password123';
 
-bcrypt.compare(password, normalPasswordHash).then((result) => {
+bcrypt.compare(password, normalPasswordHash).then(result => {
   console.log('正常用户密码验证结果:', result);
 });
 ```
@@ -102,10 +102,10 @@ const saltRounds = 10;
 
 bcrypt
   .hash(password, saltRounds)
-  .then((hash) => {
+  .then(hash => {
     console.log('新的密码哈希:', hash);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('生成哈希错误:', error);
   });
 ```
@@ -134,7 +134,7 @@ docker exec platform-mysql mysql -u app_user -puserpassword -D user_db -e "UPDAT
 const newPasswordHash = '新的哈希值';
 const password = 'password123';
 
-bcrypt.compare(password, newPasswordHash).then((result) => {
+bcrypt.compare(password, newPasswordHash).then(result => {
   console.log('修复后密码验证结果:', result);
 });
 ```

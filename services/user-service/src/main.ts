@@ -17,8 +17,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // 读取配置服务实例
   const configService = app.get(ConfigService);
-  // 读取应用端口，默认 3000
-  const port = configService.get<number>('APP_PORT') || 3000;
+  // 读取应用端口，默认 3001
+  const port = configService.get<number>('APP_PORT') || 3001;
   // Swagger 文档初始化
   const SwaggerConfig = new DocumentBuilder()
     .setTitle('用户服务 API') // 文档标题
@@ -79,7 +79,11 @@ async function bootstrap() {
   console.log('=== 服务启动完成 ===');
   // 启用 CORS
   app.enableCors({
-    origin: 'http://localhost:3001', // 允许访问此API服务器的前端地址
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5173',
+    ], // 允许 API 网关、前端和开发服务器访问
     credentials: true, // 允许携带凭证(如cookie)
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], // 允许的请求方法
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'], // 允许的请求头

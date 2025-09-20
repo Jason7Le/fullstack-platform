@@ -457,7 +457,7 @@ const isUserRoomMember = (room: RoomInfo): boolean => {
     return false;
   }
 
-  const isMember = room.members.some((member) => member.userId === authStore.userInfo.id);
+  const isMember = room.members.some(member => member.userId === authStore.userInfo.id);
   console.log('ChatRoomView: isUserRoomMember 检查结果', {
     roomId: room.id,
     roomName: room.name,
@@ -616,7 +616,7 @@ const formatTime = (timestamp: Date | string) => {
 };
 
 // 监听房间加入成功事件
-watch(roomJoinedEvent, (event) => {
+watch(roomJoinedEvent, event => {
   console.log('ChatRoomView: 监听到roomJoinedEvent变化:', event);
   console.log('ChatRoomView: 当前joiningRoom状态:', joiningRoom.value);
 
@@ -626,7 +626,7 @@ watch(roomJoinedEvent, (event) => {
     joiningRoom.value = null;
 
     // 从房间列表中找到对应的房间信息
-    const roomInfo = roomList.value?.find((room) => room.id === event.roomId);
+    const roomInfo = roomList.value?.find(room => room.id === event.roomId);
     console.log('ChatRoomView: 找到的房间信息:', roomInfo);
 
     if (roomInfo) {
