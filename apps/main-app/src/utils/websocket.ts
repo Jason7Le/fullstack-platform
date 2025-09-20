@@ -124,13 +124,18 @@ class WebsocketService {
   private isManualDisconnect = false; // 标记是否为手动断开
   private lastEventTime: Map<string, number> = new Map(); // 记录最后触发事件的时间
 
+  // 重连相关属性
+  private reconnectAttempts = 0; // 当前重连尝试次数
+  private reconnectTimeout: NodeJS.Timeout | null = null; // 重连定时器
+
   /**
    * 连接 WebSocket 服务器
    *
    * @param token - JWT 认证令牌
    * @param serverUrl - 服务器地址，默认为当前域名
+   * @param isReconnect - 是否为重连操作，默认为 false
    */
-  connect(token: string, serverUrl?: string): Promise<void> {
+  connect(token: string, serverUrl?: string, isReconnect = false): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         // 如果已经连接，直接返回
@@ -146,14 +151,19 @@ class WebsocketService {
           return;
         }
 
-        // 如果存在socket但未连接，先断开
+        // 如果存在socket但未连接，先断开（但不重置重连次数）
         if (this.socket) {
           console.log('WebSocket 存在但未连接，先断开旧连接');
-          this.disconnect();
+          this.disconnect(false); // 不重置重连次数
         }
 
         this.status = ConnectionStatus.CONNECTING;
         this.isManualDisconnect = false; // 重置手动断开标记
+
+        // 只有在非重连时才重置重连次数
+        if (!isReconnect) {
+          this.reconnectAttempts = 0;
+        }
 
         // 构建服务器URL - 连接到后端3000端口
         // 支持环境变量配置，默认连接到3000端口
@@ -189,18 +199,21 @@ class WebsocketService {
           console.error('WebSocket 连接失败:', error);
           this.status = ConnectionStatus.ERROR;
 
+          // 如果已达到最大重连次数，彻底断开连接
+          if (this.reconnectAttempts >= 5) {
+            this.forceDisconnect('达到最大重连次数');
+            return;
+          }
+
           // 如果是认证失败，不显示通用错误消息
           if (error.message?.includes('认证失败') || error.message?.includes('AUTH_FAILED')) {
             console.error('WebSocket 认证失败:', error);
+            reject(new Error(`认证失败: ${error.message || error}`));
           } else {
             ElMessage.error('WebSocket 连接失败');
+            // 尝试重连
+            this.handleReconnect(token, url, resolve, reject);
           }
-
-          // 暂时禁用自动重连
-          // if (!error.message?.includes('认证失败') && !error.message?.includes('AUTH_FAILED')) {
-          //   this.handleReconnect();
-          // }
-          reject(new Error(`连接失败: ${error.message || error}`));
         });
 
         // 断开连接事件
@@ -216,16 +229,23 @@ class WebsocketService {
           // 重置手动断开标记
           this.isManualDisconnect = false;
 
-          // 暂时禁用自动重连
-          // if (reason !== 'io client disconnect' && !this.isManualDisconnect) {
-          //   this.handleReconnect();
-          // }
+          // 如果已达到最大重连次数，彻底断开连接
+          if (this.reconnectAttempts >= 5) {
+            this.forceDisconnect('达到最大重连次数');
+            return;
+          }
+
+          // 如果不是手动断开且不是客户端主动断开，尝试重连
+          if (reason !== 'io client disconnect' && !this.isManualDisconnect) {
+            this.handleReconnect(token, url, resolve, reject);
+          }
         });
 
         // 服务器认证成功事件
         this.socket.on('connected', data => {
           console.log('WebSocket 认证成功:', data);
           this.status = ConnectionStatus.CONNECTED;
+          this.reconnectAttempts = 0; // 连接成功后重置重连次数
           this.triggerEvent('connected', data);
 
           // 设置所有业务事件监听器
@@ -274,28 +294,109 @@ class WebsocketService {
 
   /**
    * 断开 WebSocket 连接
+   * @param resetRetryCount - 是否重置重连次数，默认为 true
    */
-  disconnect(): void {
+  disconnect(resetRetryCount = true): void {
     console.log('WebSocketService: 开始断开连接');
 
     // 设置手动断开标记
     this.isManualDisconnect = true;
 
+    // 重置重连次数（只有在手动断开或明确要求时才重置）
+    if (resetRetryCount) {
+      this.reconnectAttempts = 0;
+    }
+
     // 先触发断开连接事件
     this.triggerEvent('disconnected');
 
-    if (this.socket) {
-      // 移除所有事件监听器，避免重复监听
-      this.socket.removeAllListeners();
-      this.socket.disconnect();
-      this.socket = null;
-    }
+    // 调用彻底断开连接方法
+    this.forceDisconnect('手动断开连接');
 
     this.status = ConnectionStatus.DISCONNECTED;
     // 注意：不清空 eventListeners，保持组合式函数的事件监听器
     // this.eventListeners.clear();
 
     console.log('WebSocketService: 连接已断开');
+  }
+
+  /**
+   * 彻底断开 WebSocket 连接
+   * @param reason - 断开原因，用于日志记录
+   */
+  private forceDisconnect(reason: string): void {
+    console.log(`彻底断开 WebSocket 连接: ${reason}`);
+    this.status = ConnectionStatus.ERROR;
+
+    // 彻底断开 Socket.IO 连接，防止继续触发事件
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
+
+    // 清理重连定时器
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
+  /**
+   * 处理重连逻辑
+   * @param token - JWT 认证令牌
+   * @param serverUrl - 服务器地址
+   * @param resolve - Promise resolve 函数
+   * @param reject - Promise reject 函数
+   */
+  private handleReconnect(
+    token: string,
+    serverUrl: string,
+    resolve: Function,
+    reject: Function,
+  ): void {
+    // 先递增重连次数
+    this.reconnectAttempts++;
+
+    // 检查是否已达到最大重连次数
+    if (this.reconnectAttempts > 5) {
+      console.error('WebSocket 重连失败，已达到最大重连次数 5');
+      ElMessage.error('WebSocket 连接失败，已尝试 5 次');
+
+      this.forceDisconnect('达到最大重连次数');
+      reject(new Error('连接失败，已达到最大重连次数 5'));
+      return;
+    }
+
+    console.log(`WebSocket 开始第 ${this.reconnectAttempts} 次重连尝试 (最大 5 次)`);
+
+    // 设置重连状态
+    this.status = ConnectionStatus.RECONNECTING;
+
+    // 计算重连延迟时间（指数退避）
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 10000); // 最大10秒
+
+    this.reconnectTimeout = setTimeout(() => {
+      // 在定时器执行前再次检查重连次数
+      if (this.reconnectAttempts > 5) {
+        console.log('定时器执行时发现已超过最大重连次数，停止重连');
+        return;
+      }
+
+      console.log(`WebSocket 第 ${this.reconnectAttempts} 次重连尝试，延迟 ${delay}ms`);
+
+      // 重新连接
+      this.connect(token, serverUrl, true)
+        .then(() => {
+          console.log(`WebSocket 第 ${this.reconnectAttempts} 次重连成功`);
+          resolve();
+        })
+        .catch(error => {
+          console.error(`WebSocket 第 ${this.reconnectAttempts} 次重连失败:`, error);
+          // 继续尝试重连
+          this.handleReconnect(token, serverUrl, resolve, reject);
+        });
+    }, delay);
   }
 
   /**
@@ -433,6 +534,17 @@ class WebsocketService {
    */
   isConnected(): boolean {
     return this.status === ConnectionStatus.CONNECTED && this.socket?.connected === true;
+  }
+
+  /**
+   * 获取重连状态信息
+   */
+  getReconnectInfo(): { attempts: number; maxAttempts: number; isReconnecting: boolean } {
+    return {
+      attempts: this.reconnectAttempts,
+      maxAttempts: 5,
+      isReconnecting: this.status === ConnectionStatus.RECONNECTING,
+    };
   }
 
   /**

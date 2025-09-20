@@ -520,6 +520,9 @@ export function useWebSocket() {
     authStore,
   } = globalState!;
 
+  // 重连状态信息
+  const reconnectInfo = computed(() => websocketService.getReconnectInfo());
+
   const currentRoom = (globalState as any).currentRoom;
 
   // 计算属性
@@ -749,23 +752,29 @@ export function useWebSocket() {
     return roomMessages.value?.[roomId] || [];
   };
 
-  const getRoomList = async () => {
+  const getRoomList = async (forceRefresh = false) => {
     try {
-      console.log('useWebSocket: 调用getRoomList API');
+      console.log('useWebSocket: 调用getRoomList API, forceRefresh:', forceRefresh);
 
-      // 如果已经有房间列表数据且不为空，直接返回
-      if (globalState && globalState.roomList.value && globalState.roomList.value.length > 0) {
+      // 如果强制刷新或者没有房间列表数据，则重新加载
+      if (
+        forceRefresh ||
+        !globalState ||
+        !globalState.roomList.value ||
+        globalState.roomList.value.length === 0
+      ) {
+        console.log('useWebSocket: 重新加载房间列表');
+        const rooms = await roomApi.getRoomList();
+        console.log('useWebSocket: getRoomList API返回:', rooms);
+        if (globalState) {
+          globalState.roomList.value = rooms;
+          console.log('useWebSocket: 更新globalState.roomList:', globalState.roomList.value);
+        }
+        return rooms;
+      } else {
         console.log('useWebSocket: 使用缓存的房间列表');
         return globalState.roomList.value;
       }
-
-      const rooms = await roomApi.getRoomList();
-      console.log('useWebSocket: getRoomList API返回:', rooms);
-      if (globalState) {
-        globalState.roomList.value = rooms;
-        console.log('useWebSocket: 更新globalState.roomList:', globalState.roomList.value);
-      }
-      return rooms;
     } catch (error) {
       console.error('获取房间列表失败:', error);
       throw error;
@@ -778,6 +787,7 @@ export function useWebSocket() {
     connectionStatus,
     statusText,
     statusColor,
+    reconnectInfo,
     notifications,
     onlineUsers,
     onlineUserCount,

@@ -312,6 +312,7 @@ const {
   sendRoomMessage,
   getRoomMessages,
   getRoomHistory,
+  getRoomList,
   roomJoinedEvent,
   roomList,
 } = useWebSocket();
@@ -684,7 +685,15 @@ onMounted(async () => {
   // 监听WebSocket事件（useWebSocket已经处理了room_joined事件）
   websocketService.on('error', handleRoomError);
 
-  // 房间列表会通过WebSocket事件自动加载和更新
+  // 主动加载房间列表
+  try {
+    console.log('ChatRoomView: 开始加载房间列表');
+    await getRoomList(true); // 强制刷新房间列表
+    console.log('ChatRoomView: 房间列表加载完成');
+  } catch (error) {
+    console.error('ChatRoomView: 加载房间列表失败:', error);
+    ElMessage.error('加载房间列表失败');
+  }
 });
 
 // 组件卸载时清理事件监听
