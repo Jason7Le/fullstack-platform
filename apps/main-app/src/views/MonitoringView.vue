@@ -265,7 +265,7 @@ import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { monitoringApi } from '../api/monitoringApi';
 import { settingsApi } from '../api/settingsApi';
-import AppNavigation from '../components/AppNavigation.vue';
+import { formatTimestamp } from '../utils/dateUtils';
 
 // 响应式数据
 const loading = ref(false);
@@ -552,12 +552,8 @@ const refreshMetrics = async () => {
     // 更新错误监控数据
     if (errorsResponse.success && errorsResponse.data.statistics) {
       const statisticsData = errorsResponse.data.statistics;
-      // 后端返回的是对象，我们需要 recentErrors 数组
-      if (statisticsData.recentErrors && Array.isArray(statisticsData.recentErrors)) {
-        errorData.value = statisticsData.recentErrors;
-      } else {
-        errorData.value = [];
-      }
+      // 直接使用 statistics 数组
+      errorData.value = Array.isArray(statisticsData) ? statisticsData : [];
     }
 
     // 更新实时数据状态
@@ -626,10 +622,6 @@ const getSeverityText = (severity: string) => {
     default:
       return '未知';
   }
-};
-
-const formatTimestamp = (timestamp: number) => {
-  return new Date(timestamp).toLocaleString('zh-CN');
 };
 
 // 组件挂载时初始化

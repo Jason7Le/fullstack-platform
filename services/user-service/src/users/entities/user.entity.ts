@@ -6,10 +6,15 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 
 // 用户实体，对应数据库表 `users`
-@Entity('users')
+@Entity('users') // 创建索引，用于查询
+@Index(['email']) // 邮箱索引
+@Index(['role']) // 角色索引
+@Index(['createdAt']) // 创建时间索引，用于查询 ，方便排序
+@Index(['refreshToken']) // 刷新token索引，用于查询
 export class User {
   // 自增主键，用户唯一标识
   @PrimaryGeneratedColumn()

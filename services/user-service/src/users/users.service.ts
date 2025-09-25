@@ -14,6 +14,7 @@ import {
   UserAlreadyExistsException,
   UserNotFoundException,
 } from '@fullstack-platform/common';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import {
   BadRequestException,
   ConflictException,
@@ -32,7 +33,66 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './entities/user.entity';
 
-/**
+/*
+ * 性能监控装饰器
+ * 用于监控查询操作的性能
+ * @param target - 目标对象
+ * @param propertyName - 属性名称
+ * @param descriptor - 属性描述符
+ */
+function QueryPerformance(
+  target: any,
+  propertyName: string,
+  descriptor: PropertyDescriptor,
+) {
+  const method = descriptor.value;
+
+  descriptor.value = async function (...args: any[]) {
+    const start = Date.now();
+    const methodName = `${target.constructor.name}.${propertyName}`;
+
+    try {
+      const result = await method.apply(this, args);
+      const duration = Date.now() - start;
+
+      // 记录查询性能
+      console.log(`✅ 查询成功: ${methodName} 耗时 ${duration}ms`);
+
+      // 慢查询警告
+      if (duration > 1000) {
+        console.warn(`⚠️ 慢查询警告: ${methodName} 耗时 ${duration}ms`);
+      }
+
+      return result;
+    } catch (error) {
+      const duration = Date.now() - start;
+      console.error(
+        `❌ 查询失败: ${methodName} 耗时 ${duration}ms`,
+        error.message,
+      );
+      throw error;
+    }
+  };
+}
+
+// 分页选项接口
+interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  search?: string;
+}
+
+// 分页结果接口
+interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+/*
  * 用户服务类
  * 实现用户管理的核心业务逻辑
  *
@@ -53,9 +113,10 @@ export class UsersService {
    */
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @Inject(forwardRef(() => NotificationsService))
-    private notificationsService: NotificationsService,
+    private usersRepository: Repository<User>, // 注入用户仓库
+    @Inject(forwardRef(() => NotificationsService)) // 注入通知服务
+    private notificationsService: NotificationsService, // 注入通知服务
+    @Inject(CACHE_MANAGER) private cacheManager: Cache, // 注入缓存管理器
   ) {}
 
   /**
@@ -150,12 +211,67 @@ export class UsersService {
    *
    * 注意：此方法返回所有用户，在生产环境中可能需要分页处理
    */
-  async findAll(): Promise<UserResponseDto[]> {
+  @QueryPerformance // 性能监控装饰器
+  async findAll(
+    options?: PaginationOptions,
+  ): Promise<PaginatedResult<UserResponseDto>> {
     try {
-      const users = await this.usersRepository.find({
-        order: { createdAt: 'DESC' }, // 按创建时间倒序排列
-      });
-      return users.map((user) => this.toResponseDto(user));
+      // 使用分页、索引和查询优化
+      const {
+        page,
+        limit,
+        sortBy = 'createdAt',
+        sortOrder = 'DESC',
+        search,
+      } = options;
+      // const users = await this.usersRepository.find({
+      //   relations: [],
+      //   order: { createdAt: 'DESC' }, // 按创建时间倒序排列
+      // });
+      // 构建查询构建器
+      const queryBuilder = this.usersRepository
+        .createQueryBuilder('user') // 指定查询的表
+        .select([
+          // 指定查询的字段
+          'user.id',
+          'user.email',
+          'user.name',
+          'user.role',
+          'user.createdAt',
+          'user.updatedAt',
+        ]);
+      // 添加搜索条件
+      if (search) {
+        queryBuilder.where(
+          '(user.email LINK :search OR user.name LINK :search)',
+          { search: `%${search}%` },
+        );
+      }
+      // 添加排序
+      queryBuilder.orderBy(`user.${sortBy}`, sortOrder); // 添加排序
+
+      // 添加分页
+      const offset = (page - 1) * limit;
+      queryBuilder.skip(offset).take(limit);
+      if (search) {
+        queryBuilder.where('user.email LIKE :search', {
+          search: `%${search}%`,
+        });
+      }
+
+      // 执行查询
+      const [users, total] = await queryBuilder.getManyAndCount();
+
+      return {
+        data: users.map((user) => this.toResponseDto(user)),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+
+      // const users = await queryBuilder.getMany();
+      // return users.map((user) => this.toResponseDto(user));
     } catch (error) {
       throw new InternalServerErrorException('获取用户列表失败');
     }
@@ -177,17 +293,30 @@ export class UsersService {
    * - NotFoundException: 用户不存在
    * - InternalServerErrorException: 系统错误
    */
+  @QueryPerformance // 性能监控装饰器
   async findOne(id: number): Promise<UserResponseDto> {
     try {
+      // 带缓存的用户查询
+      // 缓存用户信息，减少数据库查询
+      // 尝试从缓存获取
+      const cacheKey = `user: ${id}`;
+      const cachedUser = await this.cacheManager.get<UserResponseDto>(cacheKey);
+      if (cachedUser) {
+        return cachedUser;
+      }
+
       const user = await this.usersRepository.findOne({
         where: { id }, // 根据 ID 查询
+        select: ['id', 'email', 'name', 'role', 'createdAt', 'updatedAt'], // 指定查询的字段
       });
 
       if (!user) {
         throw new UserNotFoundException(id);
       }
 
-      return this.toResponseDto(user);
+      const userResponse = this.toResponseDto(user);
+      await this.cacheManager.set(cacheKey, userResponse, 300000); // 缓存5分钟
+      return userResponse;
     } catch (error) {
       if (error instanceof UserNotFoundException) {
         throw error;
@@ -196,6 +325,14 @@ export class UsersService {
     }
   }
 
+  /**
+   * 清除用户缓存
+   * 在用户更新时清除相关缓存
+   */
+  async clearUserCache(id: number): Promise<void> {
+    const cacheKey = `user: ${id}`;
+    await this.cacheManager.del(cacheKey);
+  }
   /**
    * 根据邮箱查找用户
    * 主要用于检查邮箱唯一性和用户登录验证
@@ -281,7 +418,8 @@ export class UsersService {
         type: 'info',
         data: updatedUser,
       });
-
+      // 清除用户缓存
+      await this.clearUserCache(updatedUser.id);
       return this.toResponseDto(updatedUser);
     } catch (error) {
       // 重新抛出已知的业务异常
@@ -322,6 +460,8 @@ export class UsersService {
 
       // 从数据库中删除用户
       await this.usersRepository.remove(user);
+      // 清除用户缓存
+      await this.clearUserCache(id);
     } catch (error) {
       if (error instanceof UserNotFoundException) {
         throw error;
@@ -330,6 +470,27 @@ export class UsersService {
     }
   }
 
+  // 按角色批量查询用户
+  async findByRoles(roles: string[]): Promise<UserResponseDto[]> {
+    try {
+      const users = await this.usersRepository
+        .createQueryBuilder('user')
+        .select([
+          'user.id',
+          'user.email',
+          'user.name',
+          'user.role',
+          'user.createdAt',
+          'user.updatedAt',
+        ]) // 指定查询的字段
+        .where('user.role IN (:...roles)', { roles }) // 按角色查询
+        .orderBy('user.createdAt', 'DESC') // 按创建时间倒序排列
+        .getMany(); // 获取所有用户
+      return users.map((user) => this.toResponseDto(user));
+    } catch (error) {
+      throw new InternalServerErrorException('按角色查询用户失败');
+    }
+  }
   /**
    * 获取用户统计信息
    * 返回用户总数和按角色分组的用户数量
@@ -356,24 +517,46 @@ export class UsersService {
     byRole: Record<string, number>;
   }> {
     try {
+      // 使用原生SQL查询，效率更高
+      const statsQuery = `
+      SELECT COUNT(*) as total,
+      COUNT(CASE WHEN role = 'admin' THEN 1 END) as admin_count,
+      COUNT(CASE WHEN role = 'user' THEN 1 END) as user_count,
+      COUNT(CASE WHEN role = 'guest' THEN 1 END) as guest_count,
+      COUNT(CASE WHEN created_at > DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as recent_count
+      FROM users;
+      `;
+
+      const result = await this.usersRepository.query(statsQuery);
+      const stats = result[0];
+      return {
+        total: parseInt(stats.total),
+        byRole: {
+          admin: parseInt(stats.admin_count),
+          user: parseInt(stats.user_count),
+          guest: parseInt(stats.guest_count),
+        },
+        recentUsers: parseInt(stats.recent_users),
+      };
+
       // 统计用户总数
-      const total = await this.usersRepository.count();
+      // const total = await this.usersRepository.count();
 
-      // 按角色分组统计用户数量
-      const usersByRole = await this.usersRepository
-        .createQueryBuilder('user')
-        .select('user.role', 'role')
-        .addSelect('COUNT(user.id)', 'count')
-        .groupBy('user.role')
-        .getRawMany();
+      // // 按角色分组统计用户数量
+      // const usersByRole = await this.usersRepository
+      //   .createQueryBuilder('user')
+      //   .select('user.role', 'role')
+      //   .addSelect('COUNT(user.id)', 'count')
+      //   .groupBy('user.role')
+      //   .getRawMany();
 
-      // 将查询结果转换为对象格式
-      const byRole = {};
-      usersByRole.forEach((item) => {
-        byRole[item.role] = parseInt(item.count);
-      });
+      // // 将查询结果转换为对象格式
+      // const byRole = {};
+      // usersByRole.forEach((item) => {
+      //   byRole[item.role] = parseInt(item.count);
+      // });
 
-      return { total, byRole };
+      // return { total, byRole };
     } catch (error) {
       throw new InternalServerErrorException('获取用户统计失败');
     }

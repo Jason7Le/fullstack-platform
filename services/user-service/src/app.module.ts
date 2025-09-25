@@ -65,7 +65,7 @@ import * as path from 'path';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        // 数据库类型：此处使用 MySQL
+        // 基础数据库配置
         type: 'mysql',
         // 数据库主机名/IP
         host: configService.get<string>('DB_HOST'),
@@ -77,7 +77,7 @@ import * as path from 'path';
         password: configService.get<string>('DB_PASSWORD'),
         // 目标数据库名称
         database: configService.get<string>('DB_DATABASE'),
-        // 显式声明的实体类（与 autoLoadEntities 可二选一；二者并存时两者都会生效）
+        // 实体配置
         entities: [User],
         // 是否自动同步实体到数据库结构（仅建议在开发环境开启）
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
@@ -85,6 +85,36 @@ import * as path from 'path';
         logging: process.env.NODE_ENV !== 'production',
         // 自动加载通过 TypeOrmModule.forFeature 注册的实体
         autoLoadEntities: true,
+        // 数据库连接池优化配置
+        extra: {
+          // 连接池配置
+          connectionLimit: 20, // 最大连接数
+          acquireTimeout: 60000, // 获取连接超时时间
+          timeout: 60000, // 连接超时时间(60秒)
+          reconnect: true, // 自动重连
+          charset: 'utf8mb4', // 字符集
+          // MySQL 特定优化
+          supportBigNumbers: true, // 支持大数字
+          bigNumberStrings: true, // 大数字字符串
+          dateStrings: true, // 日期作为 Date 对象而非字符串
+          debug: process.env.NODE_ENV !== 'production', // 调试模式
+          // 连接池监控
+          queueLimit: 0, // 队列限制(0=无限制)
+          idleTimeout: 300000, // 连接空闲时间(5分钟)
+          maxReconnects: 3, // 最大重连次数
+          ssl: false, // 是否使用 SSL
+        },
+        // 查询优化配置
+        maxQueryExecutionTime: 1000, // 慢查询阈值（毫秒）
+        // 缓存配置
+        cache: {
+          type: 'redis', // 缓存类型
+          duration: 300000, // 缓存时间(5分钟)
+          options: {
+            host: configService.get<string>('REDIS_HOST', 'localhost'), // Redis 主机
+            port: configService.get<number>('REDIS_PORT', 6379), // Redis 端口
+          },
+        },
       }),
       inject: [ConfigService],
     }),
