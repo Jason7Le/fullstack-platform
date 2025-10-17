@@ -1,0 +1,24 @@
+{
+  "name": "dashboard-app",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --port 3003",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview --port 4175",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json"
+  },
+  "dependencies": {
+    "element-plus": "^2.11.2",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@originjs/vite-plugin-federation": "^1.4.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2",
+    "vue-tsc": "^3.0.5"
+  }
+}

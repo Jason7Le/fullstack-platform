@@ -1,0 +1,40 @@
+warning: in the working copy of 'apps/dashboard-app/src/App.vue.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard-app/src/components/HelloWorld.vue.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard-app/src/main.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard-app/src/pages/RemotePreview.vue.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard-app/src/style.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/src/router/routes.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/main-app/vite.config.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pnpm-lock.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/user-service/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/user-service/src/app.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/user-service/src/common/interceptors/transform.interceptor.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/user-service/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/user-service/src/users/users.service.ts', LF will be replaced by CRLF the next time Git touches it
+apps/dashboard-app/src/App.vue.js
+apps/dashboard-app/src/components/HelloWorld.vue.js
+apps/dashboard-app/src/components/HelloWorld.vue.js.map
+apps/dashboard-app/src/main.js
+apps/dashboard-app/src/pages/RemotePreview.vue.js
+apps/dashboard-app/src/style.css
+apps/dashboard-app/tsconfig.app.tsbuildinfo
+apps/main-app/.env.example
+apps/main-app/index.html
+apps/main-app/package.json
+apps/main-app/src/main.ts
+apps/main-app/src/router/routes.ts
+apps/main-app/vite.config.ts
+docs/README.md
+package.json
+pnpm-lock.yaml
+services/user-service/package.json
+services/user-service/src/app.module.ts
+services/user-service/src/common/interceptors/transform.interceptor.ts
+services/user-service/src/main.ts
+services/user-service/src/users/users.service.ts

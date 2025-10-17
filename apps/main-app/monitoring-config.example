@@ -1,0 +1,55 @@
+# 监控配置示例文件
+# 复制此文件为 .env.development 或 .env.production 并根据需要修改
+
+# 基础应用配置
+VITE_APP_TITLE=全栈微前端数据平台
+VITE_API_BASE_URL=http://localhost:3000
+VITE_APP_VERSION=1.0.0
+VITE_APP_PORT=3001
+VITE_REMOTE_DASHBOARD_URL=http://localhost:3003/assets/remoteEntry.js
+
+# Web Vitals 监控配置
+# 是否启用 Web Vitals 监控
+VITE_WEB_VITALS_ENABLED=true
+# 监控的页面列表（逗号分隔，支持通配符）
+# 示例：
+# - 精确匹配：/dashboard,/login
+# - 通配符匹配：/dashboard/*,/admin/*
+# - 混合使用：/dashboard,/login,/admin/*
+VITE_WEB_VITALS_PAGES=/dashboard,/dashboard-remote,/login
+
+# 微前端性能监控配置
+# 是否启用微前端监控
+VITE_MICRO_FRONTEND_ENABLED=true
+# 监控的页面列表（逗号分隔，支持通配符）
+VITE_MICRO_FRONTEND_PAGES=/dashboard-remote,/admin/*
+
+# 错误监控配置
+# 是否启用错误监控
+VITE_ERROR_MONITORING_ENABLED=true
+# 监控的页面列表（逗号分隔，支持通配符）
+VITE_ERROR_MONITORING_PAGES=/*
+
+# Google Analytics 配置
+VITE_GA_MEASUREMENT_ID=
+
+# 分析服务端点
+VITE_ANALYTICS_ENDPOINT=http://localhost:3000/api/analytics
+
+# WebSocket 配置
+VITE_WEBSOCKET_URL=ws://localhost:3000
+
+# 配置说明：
+# 1. 页面路径匹配规则：
+#    - 精确匹配：/dashboard 只匹配 /dashboard
+#    - 通配符匹配：/dashboard/* 匹配 /dashboard/xxx
+#    - 所有页面：/* 或留空
+#
+# 2. 监控启用规则：
+#    - 生产环境：自动启用（除非明确禁用）
+#    - 开发环境：需要明确设置 ENABLED=true
+#
+# 3. 性能优化：
+#    - 只监控指定页面可以显著降低性能消耗
+#    - 建议在开发环境只监控关键页面
+#    - 生产环境可以监控所有页面
