@@ -79,8 +79,8 @@ import * as path from 'path';
         database: configService.get<string>('DB_DATABASE'),
         // 实体配置
         entities: [User],
-        // 是否自动同步实体到数据库结构（仅建议在开发环境开启）
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
+        // 是否自动同步实体到数据库结构（暂时禁用避免索引冲突）
+        synchronize: false, // configService.get<boolean>('DB_SYNCHRONIZE'),
         // 是否打印 SQL 日志：在非生产环境开启
         logging: process.env.NODE_ENV !== 'production',
         // 自动加载通过 TypeOrmModule.forFeature 注册的实体
@@ -106,15 +106,15 @@ import * as path from 'path';
         },
         // 查询优化配置
         maxQueryExecutionTime: 1000, // 慢查询阈值（毫秒）
-        // 缓存配置
-        cache: {
-          type: 'redis', // 缓存类型
-          duration: 300000, // 缓存时间(5分钟)
-          options: {
-            host: configService.get<string>('REDIS_HOST', 'localhost'), // Redis 主机
-            port: configService.get<number>('REDIS_PORT', 6379), // Redis 端口
-          },
-        },
+        // 缓存配置 - 暂时禁用，避免 Redis 依赖问题
+        // cache: {
+        //   type: 'redis', // 缓存类型
+        //   duration: 300000, // 缓存时间(5分钟)
+        //   options: {
+        //     host: configService.get<string>('REDIS_HOST', 'localhost'), // Redis 主机
+        //     port: configService.get<number>('REDIS_PORT', 6379), // Redis 端口
+        //   },
+        // },
       }),
       inject: [ConfigService],
     }),

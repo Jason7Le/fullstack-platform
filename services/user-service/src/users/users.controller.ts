@@ -201,13 +201,25 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: '获取成功',
-    type: [UserResponseDto],
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/UserResponseDto' },
+        },
+        total: { type: 'number' },
+        page: { type: 'number' },
+        limit: { type: 'number' },
+        totalPages: { type: 'number' },
+      },
+    },
   })
-  async findAll(): Promise<UserResponseDto[]> {
+  async findAll(): Promise<any> {
     this.logger.log('[获取用户列表]开始获取所有用户列表');
     try {
       const result = await this.usersService.findAll();
-      this.logger.log(`[获取用户列表]获取成功，共${result.length}个用户`);
+      this.logger.log(`[获取用户列表]获取成功，共${result.data.length}个用户`);
       return result;
     } catch (error) {
       this.logger.error(

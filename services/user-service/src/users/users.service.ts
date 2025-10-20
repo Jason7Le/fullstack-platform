@@ -218,12 +218,12 @@ export class UsersService {
     try {
       // 使用分页、索引和查询优化
       const {
-        page,
-        limit,
+        page = 1,
+        limit = 10,
         sortBy = 'createdAt',
         sortOrder = 'DESC',
         search,
-      } = options;
+      } = options || {};
       // const users = await this.usersRepository.find({
       //   relations: [],
       //   order: { createdAt: 'DESC' }, // 按创建时间倒序排列
@@ -515,6 +515,7 @@ export class UsersService {
   async getUserStats(): Promise<{
     total: number;
     byRole: Record<string, number>;
+    recentUsers: number;
   }> {
     try {
       // 使用原生SQL查询，效率更高
@@ -536,7 +537,7 @@ export class UsersService {
           user: parseInt(stats.user_count),
           guest: parseInt(stats.guest_count),
         },
-        recentUsers: parseInt(stats.recent_users),
+        recentUsers: parseInt(stats.recent_count),
       };
 
       // 统计用户总数
