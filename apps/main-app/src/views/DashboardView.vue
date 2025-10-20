@@ -201,7 +201,7 @@ const navigateToFeature = (feature: string) => {
       router.push('/settings');
       break;
     case 'micro-frontend':
-      router.push('/dashboard-remote');
+      router.push('/dashboard-app');
       break;
     default:
       ElMessage.info(`${feature} 功能正在开发中...`);

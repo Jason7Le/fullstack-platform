@@ -114,7 +114,7 @@
             <el-form-item label="监控页面">
               <el-input
                 v-model="monitoringSettings.microFrontendPages"
-                placeholder="例如: /dashboard-remote,/admin/*"
+                placeholder="例如: /dashboard-app,/admin/*"
                 clearable
               />
               <div class="form-tip">多个页面用逗号分隔，支持通配符 *</div>
@@ -215,14 +215,8 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
+import { settingsApi } from '../api/settingsApi';
 import AppNavigation from '../components/AppNavigation.vue';
-import {
-  settingsApi,
-  type AllSettings,
-  type MonitoringSettings,
-  type NotificationSettings,
-  type SystemSettings,
-} from '../api/settingsApi';
 
 // 响应式数据
 const saving = ref(false);
@@ -230,9 +224,9 @@ const saving = ref(false);
 // 监控配置
 const monitoringSettings = ref({
   webVitalsEnabled: true,
-  webVitalsPages: '/dashboard,/dashboard-remote,/login',
+  webVitalsPages: '/dashboard,/dashboard-app,/login',
   microFrontendEnabled: true,
-  microFrontendPages: '/dashboard-remote,/admin/*',
+  microFrontendPages: '/dashboard-app,/admin/*',
   errorMonitoringEnabled: true,
   errorMonitoringPages: '/*',
 });
@@ -312,9 +306,9 @@ const saveNotificationSettings = async () => {
 const resetMonitoringSettings = () => {
   monitoringSettings.value = {
     webVitalsEnabled: true,
-    webVitalsPages: '/dashboard,/dashboard-remote,/login',
+    webVitalsPages: '/dashboard,/dashboard-app,/login',
     microFrontendEnabled: true,
-    microFrontendPages: '/dashboard-remote,/admin/*',
+    microFrontendPages: '/dashboard-app,/admin/*',
     errorMonitoringEnabled: true,
     errorMonitoringPages: '/*',
   };

@@ -332,7 +332,7 @@ pnpm dev
 4. 访问远程页面路由：
 
 ```
-http://localhost:3001/dashboard-remote
+http://localhost:3001/dashboard-app
 ```
 
 说明：当前 Vite 7 + @originjs/vite-plugin-federation 组合在 dev 模式不会产出物理 `remoteEntry.js`，因此通过 `preview` 提供构建产物更稳定。需要热更新可使用构建 watch + 预览的组合（刷新即可看到更新）。

@@ -104,7 +104,7 @@ export class SettingsService {
         webVitalsEnabled: this.parseValue(settingsMap.get('monitoring.webVitalsEnabled'), true),
         webVitalsPages: this.parseValue(
           settingsMap.get('monitoring.webVitalsPages'),
-          '/dashboard,/dashboard-remote,/login',
+          '/dashboard,/dashboard-app,/login',
         ),
         microFrontendEnabled: this.parseValue(
           settingsMap.get('monitoring.microFrontendEnabled'),
@@ -112,7 +112,7 @@ export class SettingsService {
         ),
         microFrontendPages: this.parseValue(
           settingsMap.get('monitoring.microFrontendPages'),
-          '/dashboard-remote,/admin/*',
+          '/dashboard-app,/admin/*',
         ),
         errorMonitoringEnabled: this.parseValue(
           settingsMap.get('monitoring.errorMonitoringEnabled'),

@@ -170,7 +170,7 @@ import { trackRemoteComponent } from '@/utils/microFrontendMonitor';
 
 const routes = [
   {
-    path: '/dashboard-remote',
+    path: '/dashboard-app',
     component: () =>
       trackRemoteComponent('dashboard-app', () => import('dashboard-app/RemotePage')),
   },

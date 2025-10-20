@@ -16,13 +16,13 @@ VITE_WEB_VITALS_ENABLED=true
 # - 精确匹配：/dashboard,/login
 # - 通配符匹配：/dashboard/*,/admin/*
 # - 混合使用：/dashboard,/login,/admin/*
-VITE_WEB_VITALS_PAGES=/dashboard,/dashboard-remote,/login
+VITE_WEB_VITALS_PAGES=/dashboard,/dashboard-app,/login
 
 # 微前端性能监控配置
 # 是否启用微前端监控
 VITE_MICRO_FRONTEND_ENABLED=true
 # 监控的页面列表（逗号分隔，支持通配符）
-VITE_MICRO_FRONTEND_PAGES=/dashboard-remote,/admin/*
+VITE_MICRO_FRONTEND_PAGES=/dashboard-app,/admin/*
 
 # 错误监控配置
 # 是否启用错误监控

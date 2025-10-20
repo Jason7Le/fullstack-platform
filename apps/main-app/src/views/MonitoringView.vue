@@ -355,9 +355,9 @@ const loadMonitoringConfig = async () => {
       // 确保布尔值字段类型正确
       monitoringConfig.value = {
         webVitalsEnabled: Boolean(monitoring.webVitalsEnabled),
-        webVitalsPages: monitoring.webVitalsPages || '/dashboard,/dashboard-remote,/login',
+        webVitalsPages: monitoring.webVitalsPages || '/dashboard,/dashboard-app,/login',
         microFrontendEnabled: Boolean(monitoring.microFrontendEnabled),
-        microFrontendPages: monitoring.microFrontendPages || '/dashboard-remote,/admin/*',
+        microFrontendPages: monitoring.microFrontendPages || '/dashboard-app,/admin/*',
         errorMonitoringEnabled: Boolean(monitoring.errorMonitoringEnabled),
         errorMonitoringPages: monitoring.errorMonitoringPages || '/*',
       };
@@ -387,10 +387,9 @@ const toggleWebVitals = async () => {
     // 只传递监控相关的配置字段，确保布尔值类型正确
     const updatedConfig = {
       webVitalsEnabled: Boolean(monitoringConfig.value.webVitalsEnabled),
-      webVitalsPages:
-        monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-remote,/login',
+      webVitalsPages: monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-app,/login',
       microFrontendEnabled: Boolean(monitoringConfig.value.microFrontendEnabled),
-      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-remote,/admin/*',
+      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-app,/admin/*',
       errorMonitoringEnabled: Boolean(monitoringConfig.value.errorMonitoringEnabled),
       errorMonitoringPages: monitoringConfig.value.errorMonitoringPages || '/*',
     };
@@ -423,10 +422,9 @@ const toggleMicroFrontend = async () => {
     // 只传递监控相关的配置字段，确保布尔值类型正确
     const updatedConfig = {
       webVitalsEnabled: Boolean(monitoringConfig.value.webVitalsEnabled),
-      webVitalsPages:
-        monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-remote,/login',
+      webVitalsPages: monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-app,/login',
       microFrontendEnabled: Boolean(monitoringConfig.value.microFrontendEnabled),
-      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-remote,/admin/*',
+      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-app,/admin/*',
       errorMonitoringEnabled: Boolean(monitoringConfig.value.errorMonitoringEnabled),
       errorMonitoringPages: monitoringConfig.value.errorMonitoringPages || '/*',
     };
@@ -459,10 +457,9 @@ const toggleErrorMonitoring = async () => {
     // 只传递监控相关的配置字段，确保布尔值类型正确
     const updatedConfig = {
       webVitalsEnabled: Boolean(monitoringConfig.value.webVitalsEnabled),
-      webVitalsPages:
-        monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-remote,/login',
+      webVitalsPages: monitoringConfig.value.webVitalsPages || '/dashboard,/dashboard-app,/login',
       microFrontendEnabled: Boolean(monitoringConfig.value.microFrontendEnabled),
-      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-remote,/admin/*',
+      microFrontendPages: monitoringConfig.value.microFrontendPages || '/dashboard-app,/admin/*',
       errorMonitoringEnabled: Boolean(monitoringConfig.value.errorMonitoringEnabled),
       errorMonitoringPages: monitoringConfig.value.errorMonitoringPages || '/*',
     };
