@@ -9,14 +9,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others --prefix \"[{name}]\" --names \"Frontend,Dashboard,API-Gateway,User-Service,Settings-Service\" \"pnpm run dev:frontend\" \"pnpm run dev:dashboard\" \"pnpm run dev:gateway\" \"pnpm run dev:backend\" \"pnpm run dev:settings\"",
+    "dev": "concurrently --kill-others --prefix \"[{name}]\" --names \"Frontend,Dashboard,API-Gateway,User-Service,Settings-Service\" \"pnpm run dev:frontend\" \"pnpm run dev:dashboard\" \"pnpm run dev:gateway\" \"pnpm run dev:user-service\" \"pnpm run dev:settings\"",
     "dev:all": "pnpm run dev",
     "dev:frontend": "cd apps/main-app && pnpm run dev",
     "dev:dashboard": "cd apps/dashboard-app && pnpm run dev",
     "dev:gateway": "cd services/api-gateway && pnpm run start:dev",
-    "dev:backend": "cd services/user-service && pnpm run start:dev",
+    "dev:user-service": "cd services/user-service && pnpm run start:dev",
     "dev:settings": "cd services/settings-service && pnpm run start:dev",
-    "start:backend": "concurrently --kill-others --prefix \"[{name}]\" --names \"API-Gateway,User-Service,Settings-Service\" \"pnpm run dev:gateway\" \"pnpm run dev:backend\" \"pnpm run dev:settings\"",
+    "dev:backend": "concurrently --kill-others --prefix \"[{name}]\" --names \"API-Gateway,User-Service,Settings-Service\" \"pnpm run dev:gateway\" \"pnpm run dev:user-service\" \"pnpm run dev:settings\"",
+    "start:backend": "pnpm run dev:backend",
     "stop:backend": "echo 请使用 Ctrl+C 停止服务",
     "restart:backend": "pnpm run start:backend",
     "preview:dashboard": "cd apps/dashboard-app && pnpm run preview --port 3003 --strictPort",

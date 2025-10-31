@@ -127,6 +127,51 @@ export class SettingsController {
   }
 
   /**
+   * 获取系统配置
+   * @returns 系统配置数据
+   */
+  @Get('system')
+  @ApiOperation({ summary: '获取系统配置' })
+  @ApiResponse({ status: 200, description: '返回系统配置数据' })
+  async getSystemSettings() {
+    const settings = await this.settingsService.getSystemSettings();
+    return {
+      success: true,
+      data: settings,
+    };
+  }
+
+  /**
+   * 获取监控配置
+   * @returns 监控配置数据
+   */
+  @Get('monitoring')
+  @ApiOperation({ summary: '获取监控配置' })
+  @ApiResponse({ status: 200, description: '返回监控配置数据' })
+  async getMonitoringSettings() {
+    const settings = await this.settingsService.getMonitoringSettings();
+    return {
+      success: true,
+      data: settings,
+    };
+  }
+
+  /**
+   * 获取通知配置
+   * @returns 通知配置数据
+   */
+  @Get('notification')
+  @ApiOperation({ summary: '获取通知配置' })
+  @ApiResponse({ status: 200, description: '返回通知配置数据' })
+  async getNotificationSettings() {
+    const settings = await this.settingsService.getNotificationSettings();
+    return {
+      success: true,
+      data: settings,
+    };
+  }
+
+  /**
    * 保存系统配置
    * @param settings 系统配置参数（自动刷新间隔、数据保留天数、错误阈值、性能阈值）
    * @returns 保存结果

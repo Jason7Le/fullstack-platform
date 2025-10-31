@@ -1,16 +1,15 @@
 <template>
   <div class="monitoring-container">
-    <!-- 顶部导航栏 -->
-    <AppNavigation />
+    <!-- 页面头部 -->
+    <PageHeader
+      title="性能监控中心"
+      subtitle="实时监控系统性能和用户体验指标"
+      :icon="TrendCharts"
+      theme="green"
+    />
 
     <!-- 主要内容区域 -->
     <el-main class="monitoring-main">
-      <!-- 页面标题 -->
-      <div class="page-header">
-        <h1>📊 性能监控中心</h1>
-        <p>实时监控系统性能和用户体验指标</p>
-      </div>
-
       <!-- 监控状态卡片 -->
       <div class="status-cards">
         <el-row :gutter="20">
@@ -26,8 +25,13 @@
                   </el-icon>
                 </div>
                 <div class="status-info">
-                  <h3>Web Vitals</h3>
-                  <p>{{ webVitalsStatus }}</p>
+                  <h3>
+                    Web Vitals
+                    <el-tag :type="monitoringConfig.webVitalsEnabled ? 'success' : 'danger'">{{
+                      webVitalsStatus
+                    }}</el-tag>
+                  </h3>
+
                   <div class="status-action">
                     <el-button
                       :type="monitoringConfig.webVitalsEnabled ? 'danger' : 'success'"
@@ -55,8 +59,12 @@
                   </el-icon>
                 </div>
                 <div class="status-info">
-                  <h3>微前端监控</h3>
-                  <p>{{ microFrontendStatus }}</p>
+                  <h3>
+                    微前端监控
+                    <el-tag :type="monitoringConfig.microFrontendEnabled ? 'success' : 'danger'">{{
+                      microFrontendStatus
+                    }}</el-tag>
+                  </h3>
                   <div class="status-action">
                     <el-button
                       :type="monitoringConfig.microFrontendEnabled ? 'danger' : 'success'"
@@ -84,8 +92,13 @@
                   </el-icon>
                 </div>
                 <div class="status-info">
-                  <h3>错误监控</h3>
-                  <p>{{ errorMonitoringStatus }}</p>
+                  <h3>
+                    错误监控
+                    <el-tag
+                      :type="monitoringConfig.errorMonitoringEnabled ? 'success' : 'danger'"
+                      >{{ errorMonitoringStatus }}</el-tag
+                    >
+                  </h3>
                   <div class="status-action">
                     <el-button
                       :type="monitoringConfig.errorMonitoringEnabled ? 'danger' : 'success'"
@@ -266,6 +279,8 @@ import { onMounted, ref } from 'vue';
 import { monitoringApi } from '../api/monitoringApi';
 import { settingsApi } from '../api/settingsApi';
 import { formatTimestamp } from '../utils/dateUtils';
+import PageHeader from '../components/PageHeader.vue';
+import { TrendCharts } from '@element-plus/icons-vue';
 
 // 响应式数据
 const loading = ref(false);
@@ -637,21 +652,6 @@ onMounted(async () => {
 
 .monitoring-main {
   padding: 20px;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.page-header h1 {
-  color: #303133;
-  margin-bottom: 10px;
-}
-
-.page-header p {
-  color: #606266;
-  font-size: 16px;
 }
 
 .status-cards {
