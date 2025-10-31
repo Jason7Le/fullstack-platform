@@ -1,7 +1,7 @@
 <template>
   <div class="chat-room-container">
     <!-- 页面头部 -->
-    <PageHeader title="聊天室" :icon="ChatDotRound" theme="orange" />
+    <PageHeader title="聊天室" subtitle="实时聊天和协作功能" :icon="ChatDotRound" theme="orange" />
 
     <!-- WebSocket连接状态 -->
     <div class="connection-status" v-if="!isConnected">

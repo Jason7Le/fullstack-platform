@@ -104,7 +104,7 @@ export class SettingsService {
         webVitalsEnabled: this.parseValue(settingsMap.get('monitoring.webVitalsEnabled'), true),
         webVitalsPages: this.parseValue(
           settingsMap.get('monitoring.webVitalsPages'),
-          '/dashboard,/dashboard-remote,/login',
+          '/dashboard,/dashboard-app,/login',
         ),
         microFrontendEnabled: this.parseValue(
           settingsMap.get('monitoring.microFrontendEnabled'),
@@ -112,7 +112,7 @@ export class SettingsService {
         ),
         microFrontendPages: this.parseValue(
           settingsMap.get('monitoring.microFrontendPages'),
-          '/dashboard-remote,/admin/*',
+          '/dashboard-app,/admin/*',
         ),
         errorMonitoringEnabled: this.parseValue(
           settingsMap.get('monitoring.errorMonitoringEnabled'),
@@ -133,6 +133,78 @@ export class SettingsService {
           'error',
         ),
       },
+    };
+  }
+
+  /**
+   * 获取系统配置
+   * @returns 系统配置对象
+   * @description 从数据库中读取系统配置，如果不存在则返回默认值
+   */
+  async getSystemSettings(): Promise<SystemSettings> {
+    const settings = await this.settingsRepository.find();
+    const settingsMap = new Map(settings.map(s => [s.key, s.value]));
+
+    return {
+      autoRefreshInterval: this.parseValue(settingsMap.get('system.autoRefreshInterval'), 30),
+      dataRetentionDays: this.parseValue(settingsMap.get('system.dataRetentionDays'), 30),
+      errorThreshold: this.parseValue(settingsMap.get('system.errorThreshold'), 10),
+      performanceThreshold: this.parseValue(settingsMap.get('system.performanceThreshold'), 2000),
+    };
+  }
+
+  /**
+   * 获取监控配置
+   * @returns 监控配置对象
+   * @description 从数据库中读取监控配置，如果不存在则返回默认值
+   */
+  async getMonitoringSettings(): Promise<MonitoringSettings> {
+    const settings = await this.settingsRepository.find();
+    const settingsMap = new Map(settings.map(s => [s.key, s.value]));
+
+    return {
+      webVitalsEnabled: this.parseValue(settingsMap.get('monitoring.webVitalsEnabled'), true),
+      webVitalsPages: this.parseValue(
+        settingsMap.get('monitoring.webVitalsPages'),
+        '/dashboard,/dashboard-app,/login',
+      ),
+      microFrontendEnabled: this.parseValue(
+        settingsMap.get('monitoring.microFrontendEnabled'),
+        true,
+      ),
+      microFrontendPages: this.parseValue(
+        settingsMap.get('monitoring.microFrontendPages'),
+        '/dashboard-app,/admin/*',
+      ),
+      errorMonitoringEnabled: this.parseValue(
+        settingsMap.get('monitoring.errorMonitoringEnabled'),
+        true,
+      ),
+      errorMonitoringPages: this.parseValue(
+        settingsMap.get('monitoring.errorMonitoringPages'),
+        '/*',
+      ),
+    };
+  }
+
+  /**
+   * 获取通知配置
+   * @returns 通知配置对象
+   * @description 从数据库中读取通知配置，如果不存在则返回默认值
+   */
+  async getNotificationSettings(): Promise<NotificationSettings> {
+    const settings = await this.settingsRepository.find();
+    const settingsMap = new Map(settings.map(s => [s.key, s.value]));
+
+    return {
+      emailEnabled: this.parseValue(settingsMap.get('notification.emailEnabled'), false),
+      emailAddress: this.parseValue(settingsMap.get('notification.emailAddress'), ''),
+      webhookEnabled: this.parseValue(settingsMap.get('notification.webhookEnabled'), false),
+      webhookUrl: this.parseValue(settingsMap.get('notification.webhookUrl'), ''),
+      notificationLevel: this.parseValue(
+        settingsMap.get('notification.notificationLevel'),
+        'error',
+      ),
     };
   }
 

@@ -464,7 +464,7 @@ export class AnalyticsController {
           component: 'DashboardRemote',
           severity: 'medium',
           timestamp: Date.now() - 300000,
-          url: '/dashboard-remote',
+          url: '/dashboard-app',
         },
         {
           id: 'error-002',

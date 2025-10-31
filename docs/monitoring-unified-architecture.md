@@ -515,7 +515,7 @@ import { trackRemoteComponent } from '@platform/monitoring/frontend';
 
 const routes = [
   {
-    path: '/dashboard-remote',
+    path: '/dashboard-app',
     component: () =>
       trackRemoteComponent('dashboard-app', () => import('dashboard-app/RemotePage')),
   },

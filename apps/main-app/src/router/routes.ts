@@ -13,7 +13,7 @@ import type { RouteRecordRaw } from 'vue-router';
 // 路由配置
 export const routes: RouteRecordRaw[] = [
   {
-    path: '/dashboard-remote',
+    path: '/dashboard-app',
     name: 'DashboardRemote',
     component: () => {
       const startTime = performance.now();
