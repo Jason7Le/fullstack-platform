@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
   const DASHBOARD_REMOTE_ENTRY =
     env.VITE_REMOTE_DASHBOARD_URL || 'http://localhost:3003/assets/remoteEntry.js';
   return {
+    base: '/', // 确保资源路径正确
     plugins: [
       vue(),
       federation({
