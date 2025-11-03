@@ -54,6 +54,19 @@ jobs:
           pnpm run build:dashboard
           echo "✅ 前端应用构建完成"
 
+      - name: Verify build output
+        run: |
+          echo "📦 检查构建输出..."
+          if [ -d "apps/main-app/dist" ]; then
+            echo "✅ dist 目录存在"
+            ls -la apps/main-app/dist/
+            echo "📄 index.html 是否存在:"
+            ls -la apps/main-app/dist/index.html || echo "⚠️ index.html 不存在"
+          else
+            echo "❌ dist 目录不存在，构建可能失败"
+            exit 1
+          fi
+
       - name: Deploy to Vercel
         id: deploy
         uses: amondnet/vercel-action@v25
@@ -61,8 +74,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod --cwd apps/main-app'
-          working-directory: .
+          vercel-args: '--prod --yes'
+          vercel-root-directory: .
 
       - name: Deployment Summary (Success)
         if: success()
