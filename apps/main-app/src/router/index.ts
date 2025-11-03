@@ -3,8 +3,10 @@ import { useAuthStore } from '../stores/auth';
 import { routes } from './routes';
 
 // 创建路由实例
+// 如果部署在子路径下，需要设置 base（从环境变量读取，默认 '/'）
+const base = import.meta.env.VITE_ROUTER_BASE || '/';
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(base),
   routes,
 });
 
