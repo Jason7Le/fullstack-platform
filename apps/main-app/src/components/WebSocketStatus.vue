@@ -38,7 +38,7 @@
 
           <div class="notification-list">
             <div
-              v-for="notification in notifications.slice(0, 10)"
+              v-for="notification in notifications?.slice(0, 10)"
               :key="notification.id"
               class="notification-item"
               :class="{ unread: !notification.read }"
@@ -48,7 +48,7 @@
                 <div class="notification-title">{{ notification.title }}</div>
                 <div class="notification-message">{{ notification.message }}</div>
                 <div class="notification-time">
-                  {{ formatTime(notification.timestamp) }}
+                  {{ formatTime(notification?.timestamp as string) }}
                 </div>
               </div>
               <el-tag
@@ -60,7 +60,7 @@
               </el-tag>
             </div>
 
-            <div v-if="notifications.length === 0" class="no-notifications">暂无通知</div>
+            <div v-if="notifications?.length === 0" class="no-notifications">暂无通知</div>
           </div>
         </el-dropdown-menu>
       </template>

@@ -288,7 +288,7 @@ const saveSystemSettings = async () => {
 const saveNotificationSettings = async () => {
   saving.value = true;
   try {
-    const response = await settingsApi.saveNotificationSettings(notificationSettings.value);
+    const response = await settingsApi.saveNotificationSettings(notificationSettings.value as any);
     if (response.success) {
       ElMessage.success(response.message);
     } else {

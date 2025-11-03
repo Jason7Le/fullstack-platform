@@ -13,8 +13,8 @@ import { Room } from './room.entity';
 @Entity('room_members')
 export class RoomMember {
   // 自增主键
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   // 房间ID：外键关联到rooms表
   @Column()

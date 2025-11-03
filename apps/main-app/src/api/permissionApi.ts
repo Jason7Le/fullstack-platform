@@ -1,5 +1,4 @@
-import { httpClient } from '../utils/httpClient';
-
+import httpClient from '@/utils/httpClient';
 // 权限矩阵数据类型
 export interface PermissionMatrixData {
   role: string;

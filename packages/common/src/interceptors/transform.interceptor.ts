@@ -7,7 +7,7 @@ import { instanceToPlain } from 'class-transformer';
 export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(data => {
+      map((data: any) => {
         // 处理空数据
         if (data === null || data === undefined) {
           return data;

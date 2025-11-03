@@ -21,7 +21,7 @@ function shouldMonitorCurrentPage(): boolean {
   }
 
   // 解析监控页面配置
-  const pagesToMonitor = enabledPages.split(',').map(page => page.trim());
+  const pagesToMonitor = enabledPages.split(',').map((page: string) => page.trim());
   const currentPath = window.location.pathname;
 
   // 检查当前页面是否在监控列表中

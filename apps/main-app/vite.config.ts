@@ -67,7 +67,6 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             // 非 shared 的库依然可以手动分包
             vendor: ['vue', 'vue-router', 'pinia'], // 第三方库
-            chart: ['echarts', 'vue-echarts'], // 图表库
             ui: ['element-plus', '@element-plus/icons-vue'], // 组件库
           },
           chunkFileNames: 'assets/js/[name]-[hash].js', // 分包后的文件名

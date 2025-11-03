@@ -4,7 +4,7 @@
   "private": true,
   "description": "全栈微前端数据平台 - Monorepo",
   "workspaces": [
-    "app/*",
+    "apps/*",
     "services/*",
     "packages/*"
   ],
@@ -21,7 +21,7 @@
     "stop:backend": "echo 请使用 Ctrl+C 停止服务",
     "restart:backend": "pnpm run start:backend",
     "preview:dashboard": "cd apps/dashboard-app && pnpm run preview --port 3003 --strictPort",
-    "build": "pnpm run build:frontend && pnpm run build:gateway && pnpm run build:backend && pnpm run build:settings",
+    "build": "pnpm run build:packages && pnpm run build:frontend && pnpm run build:dashboard && pnpm run build:gateway && pnpm run build:backend && pnpm run build:settings",
     "build:frontend": "cd apps/main-app && pnpm run build",
     "build:dashboard": "cd apps/dashboard-app && pnpm run build",
     "build:gateway": "cd services/api-gateway && pnpm run build",
@@ -43,8 +43,9 @@
     "format:fix": "prettier . --write",
     "clean": "rimraf apps/*/dist services/*/dist packages/*/dist",
     "prepare": "husky",
-    "build:packages": "pnpm run -r --filter=./packages/* build",
-    "build:monitoring": "cd packages/monitoring && pnpm run build"
+    "build:common": "cd packages/common && pnpm run build",
+    "build:monitoring": "cd packages/monitoring && pnpm run build",
+    "build:packages": "pnpm run build:common && pnpm run build:monitoring"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

@@ -341,10 +341,10 @@ const webVitalsMetrics = ref([
 ]);
 
 // 微前端性能数据
-const microFrontendData = ref([]);
+const microFrontendData = ref<any[]>([]);
 
 // 错误监控数据
-const errorData = ref([]);
+const errorData = ref<any[]>([]);
 
 // 监控配置
 const monitoringConfig = ref({
@@ -558,14 +558,14 @@ const refreshMetrics = async () => {
     if (microFrontendResponse.success && microFrontendResponse.data.performance) {
       const performanceData = microFrontendResponse.data.performance;
       // 确保数据是数组格式
-      microFrontendData.value = Array.isArray(performanceData) ? performanceData : [];
+      microFrontendData.value = Array.isArray(performanceData as any) ? performanceData : [];
     }
 
     // 更新错误监控数据
     if (errorsResponse.success && errorsResponse.data.statistics) {
       const statisticsData = errorsResponse.data.statistics;
       // 直接使用 statistics 数组
-      errorData.value = Array.isArray(statisticsData) ? statisticsData : [];
+      errorData.value = Array.isArray(statisticsData as any) ? statisticsData : [];
     }
 
     // 更新实时数据状态

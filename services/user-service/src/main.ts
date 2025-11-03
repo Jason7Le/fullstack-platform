@@ -1,3 +1,4 @@
+import 'reflect-metadata'; // 必须在最前面，用于装饰器元数据支持
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
