@@ -1,0 +1,82 @@
+# 部署工作流文件，当GitHub有新的提交时，会自动部署到Vercel
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+    # 只有前端相关文件变化时才触发部署（可选优化）
+    paths:
+      - 'apps/main-app/**'
+      - 'apps/dashboard-app/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/deploy-to-vercel.yml'
+  # 支持手动触发部署
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # 根据 package.json 中的 engines 要求设置 Node.js 版本
+          node-version: '20.19.0'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.0
+          run_install: false
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Lint check (optional)
+        continue-on-error: true
+        run: |
+          echo "🔍 运行代码检查..."
+          pnpm run lint:frontend || echo "⚠️ Lint 检查失败，继续构建"
+
+      - name: Build frontend applications
+        run: |
+          echo "🏗️ 开始构建前端应用..."
+          # 只构建前端应用，不构建后端服务
+          pnpm run build:frontend
+          pnpm run build:dashboard
+          echo "✅ 前端应用构建完成"
+
+      - name: Deploy to Vercel
+        id: deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+      - name: Deployment Summary (Success)
+        if: success()
+        run: |
+          echo "📋 部署摘要"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ 部署成功"
+          echo "🌐 访问地址: 请查看 Vercel 控制台获取最新部署 URL"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Deployment Summary (Failed)
+        if: failure()
+        run: |
+          echo "📋 部署摘要"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ 部署失败"
+          echo "请查看上方的错误日志以获取详细信息"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
