@@ -1,7 +1,6 @@
 {
-  "version": 2,
   "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm run build:packages && pnpm run build:frontend",
-  "outputDirectory": "apps/main-app/dist",
+  "outputDirectory": "dist",
   "framework": null,
   "rewrites": [
     {
