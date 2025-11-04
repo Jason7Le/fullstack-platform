@@ -1,8 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install --frozen-lockfile && pnpm run build:packages && pnpm run build:frontend",
   "outputDirectory": "apps/main-app/dist",
-  "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,

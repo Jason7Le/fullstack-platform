@@ -78,7 +78,8 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           # 使用 --prod 参数部署到生产环境
-          # vercel.json 现在在根目录，outputDirectory 指向 apps/main-app/dist
+          # vercel.json 已移除 buildCommand，因为我们已在 GitHub Actions 中手动构建
+          # VERCEL_IGNORE_BUILD_STEP: 1 确保 Vercel 不会尝试构建
           vercel-args: '--prod'
 
       - name: Deployment Summary (Success)
