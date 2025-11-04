@@ -190,21 +190,44 @@ jobs:
               filename=$(basename "$file")
               size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo "0")
               size_kb=$((size / 1024))
-              if [ "$size" -lt 1000 ]; then
-                echo "❌ 错误: $filename 文件大小异常: ${size} 字节 (${size_kb}KB) - 应该至少 100KB+"
-                exit 1
+              # 排除联邦共享依赖文件（它们可能很小，这是正常的）
+              if [[ "$filename" == __federation_shared_* ]]; then
+                echo "ℹ️  $filename: ${size_kb}KB (联邦共享依赖，大小正常)"
+              elif [[ "$filename" == index-* ]] || [[ "$filename" == vendor-* ]] || [[ "$filename" == ui-* ]]; then
+                # 主要应用文件应该至少 10KB
+                if [ "$size" -lt 10000 ]; then
+                  echo "❌ 错误: $filename 文件大小异常: ${size} 字节 (${size_kb}KB) - 应该至少 10KB+"
+                  exit 1
+                else
+                  echo "✅ $filename: ${size_kb}KB"
+                fi
               else
-                echo "✅ $filename: ${size_kb}KB"
+                echo "ℹ️  $filename: ${size_kb}KB"
               fi
             fi
           done
           # 使用 Vercel CLI 直接部署到生产环境
-          # --yes: 自动确认所有提示
-          # --token: 使用提供的 token
-          # --prod: 部署到生产环境
-          # vercel.json 中已配置 outputDirectory: dist
+          # 确保 Vercel 正确识别项目配置和输出目录
           echo "🚀 开始上传到 Vercel..."
-          vercel deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}" || {
+          echo "📋 当前工作目录: $(pwd)"
+          echo "📋 检查 dist 目录是否存在:"
+          ls -la dist/ | head -5
+          echo "📋 检查 vercel.json 是否存在:"
+          cat vercel.json
+          echo "📋 验证 dist 目录中的文件大小:"
+          du -sh dist/assets/js/*.js 2>/dev/null | head -5
+
+          # 设置 Vercel 项目配置环境变量
+          export VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
+          export VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+
+          # 使用 vercel 命令部署（不是 vercel deploy）
+          # --prod: 部署到生产环境
+          # --yes: 自动确认
+          # --token: 使用提供的 token
+          # --force: 强制部署（如果项目已存在）
+          # vercel.json 中已配置 outputDirectory: dist
+          vercel --prod --yes --token="${{ secrets.VERCEL_TOKEN }}" --force || {
             echo "❌ 部署失败，退出码: $?"
             echo "📋 尝试查看 Vercel 项目配置..."
             vercel ls --token="${{ secrets.VERCEL_TOKEN }}" || true
