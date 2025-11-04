@@ -24,18 +24,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          # 根据 package.json 中的 engines 要求设置 Node.js 版本
-          node-version: '20.19.0'
-          cache: 'pnpm'
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 8.15.0
           run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
@@ -71,12 +70,17 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         uses: amondnet/vercel-action@v25
+        env:
+          VERCEL_IGNORE_BUILD_STEP: 1
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # 使用 --prod 和 --yes 参数部署到生产环境，--yes 避免交互式提示
+          # 移除了 --prebuilt，因为 vercel.json 已配置 outputDirectory: dist
           vercel-args: '--prod --yes'
-          vercel-working-directory: apps/main-app
+          working-directory: apps/main-app
 
       - name: Deployment Summary (Success)
         if: success()
