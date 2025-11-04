@@ -13,7 +13,6 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - '.github/workflows/deploy-to-vercel.yml'
-      - 'vercel.json'
   # 支持手动触发部署
   workflow_dispatch:
 
@@ -76,7 +75,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod --yes'
-          vercel-working-directory: apps/main-app
+          vercel-root-directory: .
 
       - name: Deployment Summary (Success)
         if: success()
