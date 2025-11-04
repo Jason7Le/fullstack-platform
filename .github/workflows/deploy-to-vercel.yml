@@ -77,8 +77,9 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod --yes'
+          vercel-args: '--prod --yes --prebuilt'
           vercel-working-directory: apps/main-app
+          working-directory: apps/main-app
 
       - name: Deployment Summary (Success)
         if: success()
