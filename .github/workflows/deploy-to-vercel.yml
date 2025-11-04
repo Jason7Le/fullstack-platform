@@ -78,9 +78,8 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           # 使用 --prod 参数部署到生产环境
-          # 移除了 --prebuilt，因为 vercel.json 已配置 outputDirectory: dist
+          # vercel.json 现在在根目录，outputDirectory 指向 apps/main-app/dist
           vercel-args: '--prod'
-          working-directory: apps/main-app
 
       - name: Deployment Summary (Success)
         if: success()
