@@ -82,6 +82,7 @@ jobs:
 
       - name: Deploy to Vercel
         id: deploy
+        timeout-minutes: 10
         uses: amondnet/vercel-action@v25
         env:
           VERCEL_IGNORE_BUILD_STEP: 1
@@ -90,10 +91,25 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # 禁用 GitHub 相关功能，避免卡住
+          github-comment: false
+          github-deployment: false
           # 使用 --prod 参数部署到生产环境
           # vercel.json 已移除 buildCommand，因为我们已在 GitHub Actions 中手动构建
           # VERCEL_IGNORE_BUILD_STEP: 1 确保 Vercel 不会尝试构建
           vercel-args: '--prod'
+        continue-on-error: false
+
+      - name: Check deployment status
+        if: always()
+        run: |
+          echo "🔍 检查部署状态..."
+          echo "Deploy step exit code: ${{ steps.deploy.outcome }}"
+          if [ "${{ steps.deploy.outcome }}" = "success" ]; then
+            echo "✅ 部署步骤成功完成"
+          else
+            echo "⚠️ 部署步骤状态: ${{ steps.deploy.outcome }}"
+          fi
 
       - name: Deployment Summary (Success)
         if: success()
