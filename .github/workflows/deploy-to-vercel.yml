@@ -80,25 +80,31 @@ jobs:
           echo "📁 dist 目录内容:"
           ls -la dist/ | head -20
 
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
       - name: Deploy to Vercel
         id: deploy
         timeout-minutes: 10
-        uses: amondnet/vercel-action@v25
         env:
-          VERCEL_IGNORE_BUILD_STEP: 1
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # 禁用 GitHub 相关功能，避免卡住
-          github-comment: false
-          github-deployment: false
-          # 使用 --prod 参数部署到生产环境
-          # vercel.json 已移除 buildCommand，因为我们已在 GitHub Actions 中手动构建
-          # VERCEL_IGNORE_BUILD_STEP: 1 确保 Vercel 不会尝试构建
-          vercel-args: '--prod'
-        continue-on-error: false
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_IGNORE_BUILD_STEP: 1
+        run: |
+          echo "🚀 开始部署到 Vercel..."
+          echo "📦 当前目录: $(pwd)"
+          echo "📁 dist 目录内容:"
+          ls -la dist/ | head -10
+          # 使用 Vercel CLI 直接部署到生产环境
+          # --yes: 自动确认所有提示
+          # --token: 使用提供的 token
+          # vercel.json 中已配置 outputDirectory: dist
+          vercel deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}" || {
+            echo "❌ 部署失败，退出码: $?"
+            exit 1
+          }
+          echo "✅ 部署成功完成"
 
       - name: Check deployment status
         if: always()
