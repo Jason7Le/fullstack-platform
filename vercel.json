@@ -1,7 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "echo 'Build already completed in GitHub Actions'",
   "outputDirectory": "dist",
   "framework": null,
+  "installCommand": "echo 'Dependencies already installed in GitHub Actions'",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [

@@ -221,12 +221,14 @@ jobs:
           export VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
           export VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
 
-          # 使用 vercel 命令部署（不是 vercel deploy）
+          # 使用 vercel 命令部署
           # --prod: 部署到生产环境
           # --yes: 自动确认
           # --token: 使用提供的 token
           # --force: 强制部署（如果项目已存在）
-          # vercel.json 中已配置 outputDirectory: dist
+          # vercel.json 中已配置禁用构建（buildCommand 和 installCommand 都是 echo）
+          # VERCEL_IGNORE_BUILD_STEP=1 环境变量应该让 Vercel 跳过构建
+          echo "⚠️ 注意: 如果 Vercel 仍然尝试构建，请在 Vercel 控制台的项目设置中禁用自动构建"
           vercel --prod --yes --token="${{ secrets.VERCEL_TOKEN }}" --force || {
             echo "❌ 部署失败，退出码: $?"
             echo "📋 尝试查看 Vercel 项目配置..."
