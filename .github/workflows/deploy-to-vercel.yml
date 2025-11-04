@@ -67,6 +67,15 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare Vercel output
+        run: |
+          echo "📦 准备 Vercel 部署文件..."
+          # 将构建输出复制到根目录的 dist 文件夹，供 Vercel 使用
+          mkdir -p dist
+          cp -r apps/main-app/dist/* dist/
+          echo "✅ 文件已复制到根目录 dist 文件夹"
+          ls -la dist/
+
       - name: Deploy to Vercel
         id: deploy
         uses: amondnet/vercel-action@v25
