@@ -46,9 +46,52 @@ jobs:
           echo "🔍 运行代码检查..."
           pnpm run lint:frontend || echo "⚠️ Lint 检查失败，继续构建"
 
+      - name: Setup build environment variables
+        run: |
+          echo "🔧 设置构建环境变量..."
+          # 设置必需的环境变量，确保构建时不会因为缺少环境变量而失败
+          # 这些变量会在构建时被注入到代码中
+          export VITE_APP_TITLE=${VITE_APP_TITLE:-"全栈微前端数据平台"}
+          export VITE_API_BASE_URL=${VITE_API_BASE_URL:-"https://api.example.com"}
+          export VITE_APP_VERSION=${VITE_APP_VERSION:-"1.0.0"}
+          export VITE_REMOTE_DASHBOARD_URL=${VITE_REMOTE_DASHBOARD_URL:-""}
+          export VITE_WEB_VITALS_ENABLED=${VITE_WEB_VITALS_ENABLED:-"true"}
+          export VITE_WEB_VITALS_PAGES=${VITE_WEB_VITALS_PAGES:-"/dashboard,/dashboard-app,/login"}
+          export VITE_MICRO_FRONTEND_ENABLED=${VITE_MICRO_FRONTEND_ENABLED:-"true"}
+          export VITE_MICRO_FRONTEND_PAGES=${VITE_MICRO_FRONTEND_PAGES:-"/dashboard-app"}
+          export VITE_ERROR_MONITORING_ENABLED=${VITE_ERROR_MONITORING_ENABLED:-"true"}
+          export VITE_ERROR_MONITORING_PAGES=${VITE_ERROR_MONITORING_PAGES:-"/*"}
+          export VITE_GA_MEASUREMENT_ID=${VITE_GA_MEASUREMENT_ID:-""}
+          export VITE_ANALYTICS_ENDPOINT=${VITE_ANALYTICS_ENDPOINT:-"https://api.example.com/api/analytics"}
+          export VITE_WEBSOCKET_URL=${VITE_WEBSOCKET_URL:-"wss://api.example.com"}
+          echo "✅ 环境变量已设置"
+          echo "📋 关键环境变量:"
+          echo "  VITE_APP_TITLE=$VITE_APP_TITLE"
+          echo "  VITE_API_BASE_URL=$VITE_API_BASE_URL"
+          echo "  VITE_REMOTE_DASHBOARD_URL=$VITE_REMOTE_DASHBOARD_URL"
+
       - name: Build frontend applications
+        env:
+          # 将环境变量传递给构建步骤
+          VITE_APP_TITLE: ${{ secrets.VITE_APP_TITLE || '全栈微前端数据平台' }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'https://api.example.com' }}
+          VITE_APP_VERSION: ${{ secrets.VITE_APP_VERSION || '1.0.0' }}
+          VITE_REMOTE_DASHBOARD_URL: ${{ secrets.VITE_REMOTE_DASHBOARD_URL || '' }}
+          VITE_WEB_VITALS_ENABLED: ${{ secrets.VITE_WEB_VITALS_ENABLED || 'true' }}
+          VITE_WEB_VITALS_PAGES: ${{ secrets.VITE_WEB_VITALS_PAGES || '/dashboard,/dashboard-app,/login' }}
+          VITE_MICRO_FRONTEND_ENABLED: ${{ secrets.VITE_MICRO_FRONTEND_ENABLED || 'true' }}
+          VITE_MICRO_FRONTEND_PAGES: ${{ secrets.VITE_MICRO_FRONTEND_PAGES || '/dashboard-app' }}
+          VITE_ERROR_MONITORING_ENABLED: ${{ secrets.VITE_ERROR_MONITORING_ENABLED || 'true' }}
+          VITE_ERROR_MONITORING_PAGES: ${{ secrets.VITE_ERROR_MONITORING_PAGES || '/*' }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID || '' }}
+          VITE_ANALYTICS_ENDPOINT: ${{ secrets.VITE_ANALYTICS_ENDPOINT || 'https://api.example.com/api/analytics' }}
+          VITE_WEBSOCKET_URL: ${{ secrets.VITE_WEBSOCKET_URL || 'wss://api.example.com' }}
         run: |
           echo "🏗️ 开始构建前端应用..."
+          echo "📋 构建环境变量检查:"
+          echo "  VITE_APP_TITLE=$VITE_APP_TITLE"
+          echo "  VITE_API_BASE_URL=$VITE_API_BASE_URL"
+          echo "  VITE_REMOTE_DASHBOARD_URL=$VITE_REMOTE_DASHBOARD_URL"
           # 只构建前端应用，不构建后端服务
           pnpm run build:frontend
           pnpm run build:dashboard
