@@ -76,9 +76,9 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # 移除了 --yes 参数，使用正确的参数组合
-          vercel-args: '--prod --prebuilt'
-          vercel-working-directory: apps/main-app
+          # 使用 --prod 参数部署到生产环境
+          # 移除了 --prebuilt，因为 vercel.json 已配置 outputDirectory: dist
+          vercel-args: '--prod'
           working-directory: apps/main-app
 
       - name: Deployment Summary (Success)
