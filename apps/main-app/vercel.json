@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm run build:packages && pnpm run build:frontend",
   "outputDirectory": "dist",
   "framework": null,
   "cleanUrls": true,
