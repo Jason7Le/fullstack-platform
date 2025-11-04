@@ -72,13 +72,14 @@ jobs:
         uses: amondnet/vercel-action@v25
         env:
           VERCEL_IGNORE_BUILD_STEP: 1
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # 使用 --prod 参数部署到生产环境
+          # 使用 --prod 和 --yes 参数部署到生产环境，--yes 避免交互式提示
           # 移除了 --prebuilt，因为 vercel.json 已配置 outputDirectory: dist
-          vercel-args: '--prod'
+          vercel-args: '--prod --yes'
           working-directory: apps/main-app
 
       - name: Deployment Summary (Success)
