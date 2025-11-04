@@ -58,6 +58,7 @@ export default defineConfig(({ mode }) => {
     },
     // 资源优化配置
     build: {
+      outDir: 'dist', // 明确指定输出目录
       // 开启联邦时建议保留 shared 的外部化，由插件处理去重
       target: 'esnext', // 目标环境
       modulePreload: false, // 禁用模块预加载
