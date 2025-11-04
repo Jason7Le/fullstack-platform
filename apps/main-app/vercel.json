@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm run build:packages && pnpm run build:frontend",
+  "installCommand": "corepack enable && corepack prepare pnpm@8.15.0 --activate && cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm run build:packages && pnpm run build:frontend",
   "outputDirectory": "dist",
   "framework": null,
   "cleanUrls": true,
