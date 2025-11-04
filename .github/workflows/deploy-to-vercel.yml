@@ -59,9 +59,22 @@ jobs:
           echo "📦 检查构建输出..."
           if [ -d "apps/main-app/dist" ]; then
             echo "✅ dist 目录存在"
+            echo "📁 dist 目录结构:"
             ls -la apps/main-app/dist/
             echo "📄 index.html 是否存在:"
             ls -la apps/main-app/dist/index.html || echo "⚠️ index.html 不存在"
+            echo "📊 检查构建产物文件大小:"
+            if [ -d "apps/main-app/dist/assets" ]; then
+              echo "📁 assets 目录内容:"
+              find apps/main-app/dist/assets -type f -exec ls -lh {} \; | head -20
+              echo "📊 assets/js 目录文件大小统计:"
+              du -sh apps/main-app/dist/assets/js/* 2>/dev/null || echo "⚠️ 无法读取文件大小"
+              echo "📊 检查文件完整性（前10个最大的文件）:"
+              find apps/main-app/dist/assets -type f -exec ls -lh {} \; | sort -k5 -hr | head -10
+            else
+              echo "❌ assets 目录不存在！"
+              exit 1
+            fi
           else
             echo "❌ dist 目录不存在，构建可能失败"
             exit 1
@@ -72,16 +85,86 @@ jobs:
           echo "📦 准备 Vercel 部署文件..."
           # 将构建输出复制到根目录的 dist 文件夹，供 Vercel 使用
           mkdir -p dist
-          # 使用 cp -a 复制所有文件，包括隐藏文件
-          cp -a apps/main-app/dist/. dist/
+          # 使用 cp -a 复制所有文件，包括隐藏文件（保留权限和属性）
+          echo "🔄 开始复制文件..."
+          cp -av apps/main-app/dist/. dist/
           echo "✅ 文件已复制到根目录 dist 文件夹"
           echo "📄 检查 index.html 是否存在:"
           ls -la dist/index.html || echo "⚠️ index.html 不存在"
+          echo "📄 检查测试页面 @test.html 是否存在:"
+          if [ -f "dist/@test.html" ]; then
+            echo "✅ @test.html 存在，可以通过 /@test.html 访问测试页面"
+            ls -lh dist/@test.html
+          else
+            echo "⚠️ @test.html 不存在，尝试从 public 目录复制..."
+            if [ -f "apps/main-app/public/@test.html" ]; then
+              cp apps/main-app/public/@test.html dist/@test.html
+              echo "✅ 已从 public 目录复制 @test.html"
+            else
+              echo "⚠️ public/@test.html 也不存在"
+            fi
+          fi
           echo "📁 dist 目录内容:"
           ls -la dist/ | head -20
+          echo "📄 检查 index.html 内容（前30行）:"
+          head -30 dist/index.html || echo "⚠️ 无法读取 index.html"
+          echo "📁 检查 assets 目录:"
+          if [ -d "dist/assets" ]; then
+            echo "✅ assets 目录存在"
+            ls -la dist/assets/
+            echo "📁 检查 assets/js 目录:"
+            if [ -d "dist/assets/js" ]; then
+              echo "✅ assets/js 目录存在"
+              echo "📊 复制后的文件大小验证:"
+              find dist/assets/js -type f -exec ls -lh {} \; | head -20
+              echo "📊 文件大小对比（源文件 vs 目标文件）:"
+              echo "源文件大小:"
+              find apps/main-app/dist/assets/js -type f -exec ls -lh {} \; | head -5
+              echo "目标文件大小:"
+              find dist/assets/js -type f -exec ls -lh {} \; | head -5
+              echo "📊 检查是否有文件丢失或损坏:"
+              for file in dist/assets/js/*.js; do
+                if [ -f "$file" ]; then
+                  size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo "0")
+                  if [ "$size" -lt 1000 ]; then
+                    echo "⚠️ 警告: $file 文件大小异常: ${size} 字节"
+                  fi
+                fi
+              done
+            else
+              echo "❌ assets/js 目录不存在！"
+              exit 1
+            fi
+          else
+            echo "❌ assets 目录不存在！"
+            exit 1
+          fi
+          echo "📊 总文件大小统计:"
+          du -sh dist/
+          du -sh dist/assets/
+          du -sh dist/assets/js/ 2>/dev/null || echo "⚠️ 无法统计 assets/js 大小"
+          echo "📄 验证测试页面可以访问:"
+          if [ -f "dist/@test.html" ]; then
+            echo "✅ 测试页面已准备就绪，部署后可通过 https://your-domain.vercel.app/@test.html 访问"
+            echo "📄 测试页面文件大小:"
+            ls -lh dist/@test.html
+          else
+            echo "⚠️ 测试页面不存在"
+          fi
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
+
+      - name: Verify vercel.json exists
+        run: |
+          echo "📄 检查 vercel.json 配置..."
+          if [ -f "vercel.json" ]; then
+            echo "✅ vercel.json 存在"
+            cat vercel.json
+          else
+            echo "❌ vercel.json 不存在，创建基本配置..."
+            echo '{"version": 2, "outputDirectory": "dist"}' > vercel.json
+          fi
 
       - name: Deploy to Vercel
         id: deploy
@@ -96,12 +179,35 @@ jobs:
           echo "📦 当前目录: $(pwd)"
           echo "📁 dist 目录内容:"
           ls -la dist/ | head -10
+          echo "📄 验证 index.html 中的资源路径:"
+          grep -E '(src|href)=' dist/index.html | head -5 || echo "⚠️ 无法检查资源路径"
+          echo "📊 部署前最终文件大小验证:"
+          echo "📁 assets/js 文件列表和大小:"
+          find dist/assets/js -type f -exec ls -lh {} \; | awk '{print $5, $9}' || echo "⚠️ 无法列出文件"
+          echo "📊 检查关键文件是否存在且大小正常:"
+          for file in dist/assets/js/*.js; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo "0")
+              size_kb=$((size / 1024))
+              if [ "$size" -lt 1000 ]; then
+                echo "❌ 错误: $filename 文件大小异常: ${size} 字节 (${size_kb}KB) - 应该至少 100KB+"
+                exit 1
+              else
+                echo "✅ $filename: ${size_kb}KB"
+              fi
+            fi
+          done
           # 使用 Vercel CLI 直接部署到生产环境
           # --yes: 自动确认所有提示
           # --token: 使用提供的 token
+          # --prod: 部署到生产环境
           # vercel.json 中已配置 outputDirectory: dist
+          echo "🚀 开始上传到 Vercel..."
           vercel deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}" || {
             echo "❌ 部署失败，退出码: $?"
+            echo "📋 尝试查看 Vercel 项目配置..."
+            vercel ls --token="${{ secrets.VERCEL_TOKEN }}" || true
             exit 1
           }
           echo "✅ 部署成功完成"

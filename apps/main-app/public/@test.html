@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部署测试页面 - Fullstack Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        .status {
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .info-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .info-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .info-item strong {
+            color: #374151;
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        .info-item span {
+            color: #6b7280;
+        }
+        
+        .test-results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .test-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-item.pass {
+            border-left: 4px solid #10b981;
+        }
+        
+        .test-item.fail {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 部署测试页面</h1>
+        
+        <div class="status">
+            ✅ 部署成功！页面可以正常访问
+        </div>
+        
+        <div class="info-section">
+            <h2>📋 部署信息</h2>
+            <div class="info-item">
+                <strong>部署时间:</strong>
+                <span id="deployTime"></span>
+            </div>
+            <div class="info-item">
+                <strong>当前时间:</strong>
+                <span id="currentTime"></span>
+            </div>
+            <div class="info-item">
+                <strong>页面URL:</strong>
+                <span id="pageUrl"></span>
+            </div>
+            <div class="info-item">
+                <strong>用户代理:</strong>
+                <span id="userAgent"></span>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>🔍 资源加载测试</h2>
+            <div class="test-results">
+                <div class="test-item" id="test-html">
+                    <span>HTML 页面加载</span>
+                    <span class="badge pass">✓ 通过</span>
+                </div>
+                <div class="test-item" id="test-assets">
+                    <span>Assets 资源目录</span>
+                    <span class="badge" id="assets-badge">检测中...</span>
+                </div>
+                <div class="test-item" id="test-js">
+                    <span>JavaScript 文件</span>
+                    <span class="badge" id="js-badge">检测中...</span>
+                </div>
+                <div class="test-item" id="test-css">
+                    <span>CSS 文件</span>
+                    <span class="badge" id="css-badge">检测中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>📊 文件大小检查</h2>
+            <div class="test-results" id="fileSizeResults">
+                <div class="test-item">
+                    <span>正在检测资源文件大小...</span>
+                    <span class="badge">检测中...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>如果能看到这个页面，说明部署成功！</p>
+            <p>访问 <a href="/" style="color: #667eea;">主页</a> 查看完整应用</p>
+        </div>
+    </div>
+
+    <script>
+        // 设置部署信息
+        document.getElementById('deployTime').textContent = new Date().toLocaleString('zh-CN');
+        document.getElementById('currentTime').textContent = new Date().toLocaleString('zh-CN');
+        document.getElementById('pageUrl').textContent = window.location.href;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+
+        // 测试资源加载
+        async function testResource(url, testId, badgeId) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                const element = document.getElementById(testId);
+                const badge = document.getElementById(badgeId);
+                
+                if (response.ok) {
+                    const size = response.headers.get('content-length');
+                    element.classList.add('pass');
+                    badge.classList.add('pass');
+                    badge.textContent = `✓ 通过 ${size ? `(${(size / 1024).toFixed(1)}KB)` : ''}`;
+                    return { success: true, size: size ? parseInt(size) : null };
+                } else {
+                    element.classList.add('fail');
+                    badge.classList.add('fail');
+                    badge.textContent = '✗ 失败';
+                    return { success: false, size: null };
+                }
+            } catch (error) {
+                const element = document.getElementById(testId);
+                const badge = document.getElementById(badgeId);
+                element.classList.add('fail');
+                badge.classList.add('fail');
+                badge.textContent = '✗ 失败';
+                return { success: false, size: null };
+            }
+        }
+
+        // 检查 assets 目录
+        async function checkAssets() {
+            try {
+                const response = await fetch('/assets/', { method: 'HEAD' });
+                const badge = document.getElementById('assets-badge');
+                if (response.ok || response.status === 403) {
+                    badge.classList.add('pass');
+                    badge.textContent = '✓ 通过';
+                } else {
+                    badge.classList.add('fail');
+                    badge.textContent = '✗ 失败';
+                }
+            } catch (error) {
+                const badge = document.getElementById('assets-badge');
+                badge.classList.add('fail');
+                badge.textContent = '✗ 失败';
+            }
+        }
+
+        // 检查主要资源文件
+        async function checkMainResources() {
+            // 检查 index.html 中引用的资源
+            const htmlContent = await fetch('/').then(r => r.text()).catch(() => '');
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            const scripts = Array.from(doc.querySelectorAll('script[src]'));
+            const links = Array.from(doc.querySelectorAll('link[href]'));
+            
+            const fileSizeResults = document.getElementById('fileSizeResults');
+            fileSizeResults.innerHTML = '';
+            
+            let totalSize = 0;
+            let passCount = 0;
+            let failCount = 0;
+
+            // 检查 JavaScript 文件
+            for (const script of scripts) {
+                const src = script.getAttribute('src');
+                if (src && src.startsWith('/assets/')) {
+                    const result = await testResource(src, 'test-js', 'js-badge');
+                    const item = document.createElement('div');
+                    item.className = `test-item ${result.success ? 'pass' : 'fail'}`;
+                    const sizeText = result.size ? ` (${(result.size / 1024).toFixed(1)}KB)` : '';
+                    item.innerHTML = `
+                        <span>${src}</span>
+                        <span class="badge ${result.success ? 'pass' : 'fail'}">
+                            ${result.success ? '✓' : '✗'} ${result.success ? sizeText : '加载失败'}
+                        </span>
+                    `;
+                    fileSizeResults.appendChild(item);
+                    
+                    if (result.success) {
+                        totalSize += result.size || 0;
+                        passCount++;
+                    } else {
+                        failCount++;
+                    }
+                }
+            }
+
+            // 检查 CSS 文件
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('/assets/')) {
+                    const result = await testResource(href, 'test-css', 'css-badge');
+                    const item = document.createElement('div');
+                    item.className = `test-item ${result.success ? 'pass' : 'fail'}`;
+                    const sizeText = result.size ? ` (${(result.size / 1024).toFixed(1)}KB)` : '';
+                    item.innerHTML = `
+                        <span>${href}</span>
+                        <span class="badge ${result.success ? 'pass' : 'fail'}">
+                            ${result.success ? '✓' : '✗'} ${result.success ? sizeText : '加载失败'}
+                        </span>
+                    `;
+                    fileSizeResults.appendChild(item);
+                    
+                    if (result.success) {
+                        totalSize += result.size || 0;
+                        passCount++;
+                    } else {
+                        failCount++;
+                    }
+                }
+            }
+
+            // 添加总结
+            const summary = document.createElement('div');
+            summary.className = 'test-item';
+            summary.style.marginTop = '20px';
+            summary.style.borderTop = '2px solid #e5e7eb';
+            summary.style.paddingTop = '15px';
+            summary.innerHTML = `
+                <strong>总计: ${passCount} 个文件通过, ${failCount} 个文件失败</strong>
+                <span class="badge ${failCount === 0 ? 'pass' : 'fail'}">
+                    总大小: ${(totalSize / 1024).toFixed(1)}KB
+                </span>
+            `;
+            fileSizeResults.appendChild(summary);
+        }
+
+        // 执行所有测试
+        checkAssets();
+        checkMainResources();
+    </script>
+</body>
+</html>
+
