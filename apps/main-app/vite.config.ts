@@ -22,7 +22,25 @@ export default defineConfig(({ mode }) => {
         remotes: {
           'dashboard-app': DASHBOARD_REMOTE_ENTRY, // 远程入口
         },
-        shared: ['vue', 'vue-router', 'pinia', 'element-plus'], // 共享依赖
+        shared: {
+          // 共享依赖配置，确保正确打包
+          vue: {
+            singleton: true,
+            requiredVersion: false,
+          },
+          'vue-router': {
+            singleton: true,
+            requiredVersion: false,
+          },
+          pinia: {
+            singleton: true,
+            requiredVersion: false,
+          },
+          'element-plus': {
+            singleton: true,
+            requiredVersion: false,
+          },
+        },
       }),
     ],
     resolve: {
@@ -66,10 +84,24 @@ export default defineConfig(({ mode }) => {
         // 打包配置
         output: {
           // 输出配置
-          manualChunks: {
-            // 非 shared 的库依然可以手动分包
-            vendor: ['vue', 'vue-router', 'pinia'], // 第三方库
-            ui: ['element-plus', '@element-plus/icons-vue'], // 组件库
+          manualChunks: id => {
+            // 联邦插件的 shared 依赖会被单独处理，不需要在这里分包
+            // 避免与联邦插件的 shared 配置冲突
+            if (id.includes('node_modules')) {
+              // 排除已经在 shared 中声明的依赖
+              const sharedDeps = ['vue', 'vue-router', 'pinia', 'element-plus'];
+              const isShared = sharedDeps.some(dep => id.includes(`node_modules/${dep}`));
+
+              if (isShared) {
+                // 这些依赖由联邦插件处理，不在这里分包
+                return null;
+              }
+
+              // 其他第三方库可以分包
+              if (id.includes('node_modules')) {
+                return 'vendor';
+              }
+            }
           },
           chunkFileNames: 'assets/js/[name]-[hash].js', // 分包后的文件名
           entryFileNames: 'assets/js/[name]-[hash].js', // 入口文件名
