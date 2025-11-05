@@ -1,3 +1,15 @@
+// 立即执行，确保即使后续代码出错也能看到这条日志
+console.log('🚀 main.ts 开始执行...', new Date().toISOString());
+
+// 全局错误捕获
+window.addEventListener('error', event => {
+  console.error('❌ 全局错误:', event.error, event.message, event.filename, event.lineno);
+});
+
+window.addEventListener('unhandledrejection', event => {
+  console.error('❌ 未处理的 Promise 拒绝:', event.reason);
+});
+
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
@@ -10,9 +22,10 @@ import './style.css';
 import { ErrorMonitoringService } from './utils/errorMonitoring';
 import { initWebVitals } from './utils/webVitals';
 
+console.log('✅ 所有依赖导入成功');
+
 // 调试信息：检查 Vue 和 Pinia 是否正常加载
 try {
-  // 检查 Vue 是否成功导入
   const vueVersion = typeof createApp === 'function' ? 'Vue 3 已加载' : 'Vue 未加载';
   const piniaVersion = typeof createPinia === 'function' ? 'Pinia 已加载' : 'Pinia 未加载';
   console.log('Vue 版本:', vueVersion);

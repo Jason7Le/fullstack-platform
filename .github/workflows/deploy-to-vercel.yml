@@ -70,7 +70,18 @@ jobs:
           fi
           echo "✅ 构建输出验证通过"
           echo "📄 检查构建后的 index.html 内容:"
-          head -20 apps/main-app/dist/index.html
+          cat apps/main-app/dist/index.html
+          echo ""
+          echo "⚠️ 检查 index.html 中的 script 标签:"
+          grep -E '<script' apps/main-app/dist/index.html || echo "未找到 script 标签"
+          echo ""
+          echo "⚠️ 检查是否仍然引用 /src/main.ts (这是错误的):"
+          if grep -q '/src/main.ts' apps/main-app/dist/index.html; then
+            echo "❌ 错误: 构建后的 index.html 仍然引用了 /src/main.ts，应该引用编译后的 JS 文件"
+            echo "这可能导致页面无法加载 JavaScript"
+          else
+            echo "✅ index.html 正确引用了编译后的 JS 文件"
+          fi
 
       - name: Prepare Vercel output
         run: |
