@@ -69,6 +69,8 @@ jobs:
             exit 1
           fi
           echo "✅ 构建输出验证通过"
+          echo "📄 检查构建后的 index.html 内容:"
+          head -20 apps/main-app/dist/index.html
 
       - name: Prepare Vercel output
         run: |

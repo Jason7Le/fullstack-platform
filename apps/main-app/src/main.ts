@@ -10,6 +10,19 @@ import './style.css';
 import { ErrorMonitoringService } from './utils/errorMonitoring';
 import { initWebVitals } from './utils/webVitals';
 
+// 调试信息：检查 Vue 和 Pinia 是否正常加载
+try {
+  // 检查 Vue 是否成功导入
+  const vueVersion = typeof createApp === 'function' ? 'Vue 3 已加载' : 'Vue 未加载';
+  const piniaVersion = typeof createPinia === 'function' ? 'Pinia 已加载' : 'Pinia 未加载';
+  console.log('Vue 版本:', vueVersion);
+  console.log('Pinia 版本:', piniaVersion);
+  console.log('路由状态:', window.location.href);
+  console.log('当前环境:', import.meta.env.MODE);
+} catch (error) {
+  console.error('检查依赖时出错:', error);
+}
+
 const app = createApp(App);
 const pinia = createPinia();
 // 注册 Element Plus，配置中文语言包
@@ -35,7 +48,30 @@ app.config.errorHandler = (err, _instance, info) => {
 };
 
 // 延迟初始化 Web Vitals 监控，确保页面准备好
-app.mount('#app');
+try {
+  const mountElement = document.getElementById('app');
+  if (!mountElement) {
+    console.error('❌ 找不到挂载元素 #app');
+    throw new Error('找不到挂载元素 #app');
+  }
+  console.log('✅ 找到挂载元素，开始挂载应用...');
+  app.mount('#app');
+  console.log('✅ 应用挂载成功');
+} catch (error) {
+  console.error('❌ 应用挂载失败:', error);
+  // 显示错误信息给用户
+  const appElement = document.getElementById('app');
+  if (appElement) {
+    appElement.innerHTML = `
+      <div style="padding: 20px; text-align: center;">
+        <h1>应用加载失败</h1>
+        <p>错误信息: ${error instanceof Error ? error.message : String(error)}</p>
+        <p>请查看浏览器控制台获取详细信息</p>
+      </div>
+    `;
+  }
+  throw error;
+}
 
 // 在应用挂载后初始化 Web Vitals 监控
 // 使用多种方式确保页面完全准备好

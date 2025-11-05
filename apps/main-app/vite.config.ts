@@ -24,17 +24,26 @@ export default defineConfig(({ mode }) => {
         },
         shared: {
           // 共享依赖配置，确保正确打包
+          // 注意：在主应用中，这些依赖应该被打包到主应用中，而不是作为外部依赖
           vue: {
             singleton: true,
+            requiredVersion: false,
+            eager: true, // 立即加载，确保在主应用中可用
           },
           'vue-router': {
             singleton: true,
+            requiredVersion: false,
+            eager: true, // 立即加载
           },
           pinia: {
             singleton: true,
+            requiredVersion: false,
+            eager: true, // 立即加载
           },
           'element-plus': {
             singleton: true,
+            requiredVersion: false,
+            eager: true, // 立即加载
           },
         } as any, // 类型断言，避免类型检查错误
       }),
@@ -97,6 +106,7 @@ export default defineConfig(({ mode }) => {
 
               if (isShared) {
                 // 这些依赖由联邦插件处理，不在这里分包
+                // 注意：由于设置了 eager: true，这些依赖会被打包到主入口文件中
                 return null;
               }
 
