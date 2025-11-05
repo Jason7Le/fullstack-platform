@@ -1,10 +1,10 @@
 {
   "version": 2,
   "builds": [],
-  "buildCommand": "",
+  "buildCommand": null,
   "outputDirectory": "dist",
   "framework": null,
-  "installCommand": "",
+  "installCommand": null,
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [

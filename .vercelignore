@@ -1,0 +1,7 @@
+# 告诉 Vercel 忽略所有源代码，只使用预构建的 dist 目录
+*
+!dist
+!dist/**
+!vercel.json
+!.vercelignore
+
