@@ -269,15 +269,30 @@ jobs:
           # --yes: 自动确认
           # --token: 使用提供的 token
           # --force: 强制部署（如果项目已存在）
-          # --no-build: 明确告诉 Vercel 不要构建（如果支持）
           # vercel.json 中已配置禁用构建（builds: []）
           echo "⚠️ 注意: 如果 Vercel 仍然尝试构建，请在 Vercel 控制台的项目设置中禁用自动构建"
+          echo "⚠️ 重要: 请确保 Vercel 项目设置中的 Root Directory 设置为 '.' 或留空，而不是 'apps/main-app'"
 
           # 尝试使用 --prebuilt 标志（如果支持）或明确指定只部署 dist 目录
           # 如果 Vercel CLI 不支持 --no-build，尝试直接指定目录
           echo "📦 准备部署静态文件..."
           echo "📋 当前 dist 目录内容:"
           find dist -type f -exec ls -lh {} \; | head -10
+
+          # 检查当前工作目录结构
+          echo "📋 当前目录结构:"
+          pwd
+          ls -la | head -10
+
+          # 尝试更新 Vercel 项目配置（如果可能）
+          echo "📋 尝试更新 Vercel 项目配置..."
+          # 使用 Vercel API 更新项目设置，将 Root Directory 设置为根目录
+          # 注意：这需要 Vercel API，如果失败则继续部署
+          curl -X PATCH "https://api.vercel.com/v9/projects/${{ secrets.VERCEL_PROJECT_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"rootDirectory": "."}' \
+            2>/dev/null || echo "⚠️ 无法自动更新项目配置，请在 Vercel 控制台手动设置 Root Directory 为 '.'"
 
           # 尝试使用 vercel 命令，明确指定 dist 目录
           # 如果支持 --prebuilt 参数，使用它
